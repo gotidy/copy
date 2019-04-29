@@ -4,7 +4,10 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"sync"
 	"unicode"
+
+	null "gopkg.in/guregu/null.v3"
 )
 
 func addFieldName(path, field string, flat bool) string {
@@ -38,6 +41,73 @@ func parseTag(tag string) (name string, omit bool) {
 	return tag, false
 }
 
+type fieldInfo struct {
+	Name string
+	Use  bool
+	ID   bool
+}
+
+type fields []fieldInfo
+
+type structsInfo struct {
+	mu sync.RWMutex
+	s  map[reflect.Type]fields
+}
+
+func (s *structsInfo) getStructFields(t reflect.Type, tagName string) (f fields) {
+	s.mu.RLock()
+	f, ok := s.s[t]
+	s.mu.RUnlock()
+	if ok {
+		return f
+	}
+	f = make(fields, t.NumField())
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.PkgPath != "" {
+			continue
+		}
+		f[i].Name = field.Name
+		f[i].Use = true
+		if tag, ok := field.Tag.Lookup(tagName); ok {
+			s, omit := parseTag(tag)
+			if s != "" {
+				f[i].Name = s
+			}
+			f[i].Use = !omit
+		}
+	}
+	s.mu.Lock()
+	s.s[t] = f
+	s.mu.Unlock()
+	return f
+}
+
+var structsInfoCache = &structsInfo{s: map[reflect.Type]fields{}}
+
+var valuesProcessor = map[reflect.Type]func(reflect.Value) interface{}{
+	reflect.TypeOf(null.Int{}): func(v reflect.Value) interface{} {
+		val, _ := (v.Interface()).(null.Int)
+		return val.Int64
+	},
+	reflect.TypeOf(null.Float{}): func(v reflect.Value) interface{} {
+		val, _ := (v.Interface()).(null.Float)
+		return val.Float64
+	},
+	reflect.TypeOf(null.Bool{}): func(v reflect.Value) interface{} {
+		val, _ := (v.Interface()).(null.Bool)
+		return val.Bool
+	},
+	reflect.TypeOf(null.String{}): func(v reflect.Value) interface{} {
+		val, _ := (v.Interface()).(null.String)
+		return val.String
+	},
+	reflect.TypeOf(null.Time{}): func(v reflect.Value) interface{} {
+		val, _ := (v.Interface()).(null.Time)
+		return val.Time
+	},
+}
+
 type traverseOpt struct {
 	Flat      bool
 	Depth     int
@@ -49,7 +119,7 @@ func Traverse(v interface{}, opt traverseOpt) (m map[string]interface{}, err err
 	val := reflect.ValueOf(v)
 	if kind := val.Kind(); kind == reflect.Struct || kind == reflect.Map && val.Type().Key().Kind() == reflect.String {
 		//m = map[string]interface{}{}
-		err = traverseValue(val, func(s string, v interface{}) {
+		err = traverse(val, func(s string, v interface{}) {
 			var ok bool
 			if m, ok = v.(map[string]interface{}); !ok {
 				err = errors.New("Type is not struct or map with string keys")
@@ -60,15 +130,21 @@ func Traverse(v interface{}, opt traverseOpt) (m map[string]interface{}, err err
 	return nil, errors.New("Type is not struct or map with string keys")
 }
 
-func traverseValue(v reflect.Value, f func(string, interface{}), name string, opt traverseOpt, depth int) error {
+func traverse(v reflect.Value, f func(string, interface{}), name string, opt traverseOpt, depth int) error {
 	v = reflect.Indirect(v)
 	depth++
+
+	vType := v.Type()
+	if p, ok := valuesProcessor[vType]; ok {
+		f(name, p(v))
+		return nil
+	}
 
 	kind := v.Kind()
 	switch kind {
 	case reflect.Struct, reflect.Map:
 		// Return map as is when key type is not string
-		if kind == reflect.Map && v.Type().Key().Kind() != reflect.String {
+		if kind == reflect.Map && vType.Key().Kind() != reflect.String {
 			// m := reflect.
 			// iter := v.MapRange()
 			// for iter.Next() {
@@ -88,34 +164,57 @@ func traverseValue(v reflect.Value, f func(string, interface{}), name string, op
 			m[name] = v
 		}
 
-		if !opt.Flat || name == "" {
-			m = map[string]interface{}{}
-		} else {
-			addToMap = f
-		}
+		// if !opt.Flat || name == "" {
+		// 	m = make(map[string]interface{}, 0)
+		// } else {
+		// 	addToMap = f
+		// }
 
 		if opt.Depth == 0 || depth <= opt.Depth {
 			switch kind {
 			case reflect.Struct:
-				structType := v.Type()
-				for i := 0; i < structType.NumField(); i++ {
-					structField := structType.Field(i)
-					fieldName := structField.Name
-					if tag, ok := structField.Tag.Lookup(opt.TagName); ok {
-						if s, omit := parseTag(tag); !omit && (s != "") {
-							fieldName = s
+				fields := structsInfoCache.getStructFields(vType, opt.TagName)
+				size := len(fields)
+				if !opt.Flat || name == "" {
+					if opt.Flat && depth <= 1 {
+						size += size / 2
+					}
+					m = make(map[string]interface{}, size)
+				} else {
+					addToMap = f
+				}
+				for i := 0; i < len(fields); i++ {
+					if fields[i].Use {
+						vF := v.Field(i)
+						if err := traverse(vF, addToMap, addFieldName(name, fields[i].Name, opt.Flat), opt, depth); err != nil {
+							return err
 						}
 					}
-					if err := traverseValue(v.Field(i), addToMap, addFieldName(name, fieldName, opt.Flat), opt, depth); err != nil {
-						return err
-					}
 				}
+				// structType := v.Type()
+				// for i := 0; i < structType.NumField(); i++ {
+				// 	structField := structType.Field(i)
+				// 	fieldName := structField.Name
+				// 	if tag, ok := structField.Tag.Lookup(opt.TagName); ok {
+				// 		if s, omit := parseTag(tag); !omit && (s != "") {
+				// 			fieldName = s
+				// 		}
+				// 	}
+				// 	if err := traverseValue(v.Field(i), addToMap, addFieldName(name, fieldName, opt.Flat), opt, depth); err != nil {
+				// 		return err
+				// 	}
+				// }
 			case reflect.Map:
+				if !opt.Flat || name == "" {
+					m = make(map[string]interface{}, v.Len()) //map[string]interface{}{}
+				} else {
+					addToMap = f
+				}
 				iter := v.MapRange()
 				for iter.Next() {
 					key := iter.Key()
 					v := iter.Value()
-					if err := traverseValue(v, addToMap, addFieldName(name, key.String(), opt.Flat), opt, depth); err != nil {
+					if err := traverse(v, addToMap, addFieldName(name, key.String(), opt.Flat), opt, depth); err != nil {
 						return err
 					}
 				}
@@ -137,14 +236,15 @@ func traverseValue(v reflect.Value, f func(string, interface{}), name string, op
 		}
 		if opt.Depth == 0 || depth <= opt.Depth {
 			for i := 0; i < length; i++ {
-				if err := traverseValue(v.Index(i), addToSlice, "", opt, depth); err != nil {
+				if err := traverse(v.Index(i), addToSlice, "", opt, depth); err != nil {
 					return err
 				}
 			}
 		}
 		f(name, s)
 	default:
-		f(name, v.Interface())
+		vI := v.Interface()
+		f(name, vI)
 	}
 
 	return nil
