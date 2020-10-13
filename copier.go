@@ -53,7 +53,7 @@ func (c *Copier) getFieldsCopiers(src, dest reflect.Type) []fieldCopier {
 }
 
 // Prefetch caches structures of src and dest.  Dst and src each must be a pointer to struct.
-// contents is not copied. It can be used for ability of coping.
+// contents is not copied. It can be used for checking ability of copying.
 //
 // c := copy.New("")
 // c.Prefetch(&src, &dest)
@@ -97,7 +97,7 @@ func (c *Copier) Copy(src, dest interface{}) {
 var DefaultCopier = New(defaultTagName)
 
 // Prefetch caches structures of src and dest.  Dst and src each must be a pointer to struct.
-// contents is not copied. It can be used for ability of coping.
+// contents is not copied. It can be used for checking ability of copying.
 //
 // copy.Prefetch(&src, &dest)
 func Prefetch(src, dest interface{}) {
