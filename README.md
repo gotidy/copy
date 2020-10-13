@@ -1,4 +1,4 @@
-# ptr [![GoDoc](https://godoc.org/github.com/gotidy/copy?status.svg)](https://godoc.org/github.com/gotidy/copy) [![Go Report Card](https://goreportcard.com/badge/github.com/gotidy/copy)](https://goreportcard.com/report/github.com/gotidy/copy)
+# copy [![GoDoc](https://godoc.org/github.com/gotidy/copy?status.svg)](https://godoc.org/github.com/gotidy/copy) [![Go Report Card](https://goreportcard.com/badge/github.com/gotidy/copy)](https://goreportcard.com/report/github.com/gotidy/copy)
 
 Fast structs copier.
 
