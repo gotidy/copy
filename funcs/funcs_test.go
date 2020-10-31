@@ -149,11 +149,11 @@ func TestCopiers(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			srcPtr := reflect.ValueOf(tt.args.Src)
 			src := reflect.Indirect(srcPtr)
-			destPtr := reflect.ValueOf(tt.args.Dest)
-			dest := reflect.Indirect(destPtr)
-			copier := Get(src.Type(), dest.Type())
-			copier(unsafe.Pointer(srcPtr.Pointer()), unsafe.Pointer(destPtr.Pointer()))
-			checkEqual(t, dest.Interface(), tt.want)
+			dstPtr := reflect.ValueOf(tt.args.Dest)
+			dst := reflect.Indirect(dstPtr)
+			copier := Get(src.Type(), dst.Type())
+			copier(unsafe.Pointer(srcPtr.Pointer()), unsafe.Pointer(dstPtr.Pointer()))
+			checkEqual(t, dst.Interface(), tt.want)
 		})
 	}
 }

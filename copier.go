@@ -1,110 +1,233 @@
 package copy
 
 import (
+	"fmt"
 	"reflect"
 	"sync"
 	"unsafe"
 
 	"github.com/gotidy/copy/cache"
+	"github.com/gotidy/copy/funcs"
 )
 
 const defaultTagName = "copy"
 
-type funcKey struct {
+type copierKey struct {
 	Src  reflect.Type
 	Dest reflect.Type
 }
 
-// Copier is structs copier
-type Copier struct {
-	cache *cache.Cache
+type Options struct {
+	Tag   string
+	Panic bool
+}
+
+type Option func(c *Options)
+
+func WithTag(tag string) Option {
+	return func(o *Options) {
+		o.Tag = tag
+	}
+}
+
+// panic on nonassignable types
+func WithPanic() Option {
+	return func(o *Options) {
+		o.Panic = true
+	}
+}
+
+// Copiers is structs copier
+type Copiers struct {
+	cache   *cache.Cache
+	options Options
 
 	mu      sync.RWMutex
-	copiers map[funcKey][]fieldCopier
+	copiers map[copierKey]Copier
 }
 
 // New create new Copier
-func New(tagName string) *Copier {
-	return &Copier{cache: cache.New(tagName), copiers: make(map[funcKey][]fieldCopier)}
+func New(options ...Option) *Copiers {
+	var opts Options
+	for _, option := range options {
+		option(&opts)
+	}
+	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]Copier)}
 }
 
-func (c *Copier) getFieldsCopiers(src, dest reflect.Type) []fieldCopier {
-	c.mu.RLock()
-	fc, ok := c.copiers[funcKey{Src: src, Dest: dest}]
-	c.mu.RUnlock()
-	if ok {
-		return fc
-	}
+type fieldCopier = func(dst, src unsafe.Pointer)
 
-	srcStruct := c.cache.GetByType(src)
-	destStruct := c.cache.GetByType(dest)
-	for i := 0; i < srcStruct.NumField(); i++ {
-		srcField := srcStruct.Field(i)
-		if destField, ok := destStruct.FieldByName(srcField.Name); ok {
-			if f := getFieldCopier(srcField, destField); f != nil {
-				fc = append(fc, f)
-			}
+func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
+	dstOffset := dst.Offset
+	srcOffset := src.Offset
+	copier := funcs.Get(dst.Type, src.Type)
+	if copier != nil {
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			copier(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset))
 		}
 	}
-	c.mu.Lock()
-	c.copiers[funcKey{Src: src, Dest: dest}] = fc
-	c.mu.Unlock()
-	return fc
+	if src.Type.AssignableTo(dst.Type) {
+		size := src.Type.Size()
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			// More safe and independent from internal structs
+			// src := reflect.NewAt(src.Type, unsafe.Pointer(uintptr(srcPtr)+src.Offset)).Elem()
+			// dst := reflect.NewAt(dst.Type, unsafe.Pointer(uintptr(dstPtr)+dst.Offset)).Elem()
+			// dst.Set(src)
+
+			memcopy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset), size)
+		}
+	}
+	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
+		copier := c.get(dst.Type, src.Type)
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+		}
+	}
+
+	if c.options.Panic {
+		panic(fmt.Errorf(`field "%s" of type %s is not assignable to field %s of type %s`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
+	}
+	return nil
 }
 
-// Prefetch caches structures of src and dest.  Dst and src each must be a pointer to struct.
+// Prefetch caches structures of src and dst.  Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
 //
 // c := copy.New("")
-// c.Prefetch(&src, &dest)
-func (c *Copier) Prefetch(src, dest interface{}) {
-	srcValue := reflect.ValueOf(src)
-	if srcValue.Kind() != reflect.Ptr {
-		panic("source must be pointer to struct")
-	}
-	srcValue = srcValue.Elem()
-	destValue := reflect.ValueOf(dest)
-	if destValue.Kind() != reflect.Ptr {
-		panic("source must be pointer to struct")
-	}
-	destValue = destValue.Elem()
-
-	_ = c.getFieldsCopiers(srcValue.Type(), destValue.Type())
+// c.Prefetch(&dst, &src)
+func (c *Copiers) Prepare(dst, src interface{}) {
+	_ = c.Get(dst, src)
 }
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
-func (c *Copier) Copy(src, dest interface{}) {
+func (c *Copiers) Copy(dst, src interface{}) {
 	srcValue := reflect.ValueOf(src)
 	if srcValue.Kind() != reflect.Ptr {
 		panic("source must be pointer to struct")
 	}
 	srcPtr := unsafe.Pointer(srcValue.Pointer())
 	srcValue = srcValue.Elem()
-	destValue := reflect.ValueOf(dest)
-	if destValue.Kind() != reflect.Ptr {
-		panic("source must be pointer to struct")
+	dstValue := reflect.ValueOf(dst)
+	if dstValue.Kind() != reflect.Ptr {
+		panic("destination must be pointer to struct")
 	}
-	destPtr := unsafe.Pointer(destValue.Pointer())
-	destValue = destValue.Elem()
+	dstPtr := unsafe.Pointer(dstValue.Pointer())
+	dstValue = dstValue.Elem()
 
-	fc := c.getFieldsCopiers(srcValue.Type(), destValue.Type())
+	copier := c.get(dstValue.Type(), srcValue.Type())
 
-	for _, c := range fc {
-		c(srcPtr, destPtr)
-	}
+	copier.copy(dstPtr, srcPtr)
 }
 
-var DefaultCopier = New(defaultTagName)
+func (c *Copiers) get(dst, src reflect.Type) Copier {
+	c.mu.RLock()
+	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
+	c.mu.RUnlock()
+	if ok {
+		return copier
+	}
 
-// Prefetch caches structures of src and dest.  Dst and src each must be a pointer to struct.
-// contents is not copied. It can be used for checking ability of copying.
-//
-// copy.Prefetch(&src, &dest)
-func Prefetch(src, dest interface{}) {
-	DefaultCopier.Prefetch(src, dest)
+	srcStruct := c.cache.GetByType(src)
+	dstStruct := c.cache.GetByType(dst)
+	for i := 0; i < srcStruct.NumField(); i++ {
+		srcField := srcStruct.Field(i)
+		if dstField, ok := dstStruct.FieldByName(srcField.Name); ok {
+			if f := c.fieldCopier(srcField, dstField); f != nil {
+				copier.copiers = append(copier.copiers, f)
+			}
+		}
+	}
+	c.mu.Lock()
+	c.copiers[copierKey{Src: src, Dest: dst}] = copier
+	c.mu.Unlock()
+	return copier
+}
+
+func (c *Copiers) Get(dst, src interface{}) Copier {
+	srcValue := reflect.ValueOf(src)
+	if srcValue.Kind() != reflect.Ptr {
+		panic("source must be pointer to struct")
+	}
+	srcValue = srcValue.Elem()
+	dstValue := reflect.ValueOf(dst)
+	if dstValue.Kind() != reflect.Ptr {
+		panic("destination must be pointer to struct")
+	}
+	dstValue = dstValue.Elem()
+
+	return c.get(dstValue.Type(), srcValue.Type())
+}
+
+type Copier struct {
+	copiers []fieldCopier
 }
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
-func Copy(src, dest interface{}) {
-	DefaultCopier.Copy(src, dest)
+func (c Copier) Copy(dst, src interface{}) {
+
+	// More safe and independent from internal structs
+	// srcValue := reflect.ValueOf(src)
+	// if srcValue.Kind() != reflect.Ptr {
+	// 	panic("source must be pointer to struct")
+	// }
+	// srcPtr := unsafe.Pointer(srcValue.Pointer())
+	// srcValue = srcValue.Elem()
+	// dstValue := reflect.ValueOf(dst)
+	// if dstValue.Kind() != reflect.Ptr {
+	// 	panic("source must be pointer to struct")
+	// }
+	// dstPtr := unsafe.Pointer(dstValue.Pointer())
+	// dstValue = dstValue.Elem()
+
+	dstPtr := ifaceToPtr(dst)
+	srcPtr := ifaceToPtr(src)
+
+	c.copy(dstPtr, srcPtr)
+}
+
+func (c Copier) copy(dst, src unsafe.Pointer) {
+	for _, c := range c.copiers {
+		c(dst, src)
+	}
+}
+
+var DefaultCopier = New(WithTag(defaultTagName))
+
+// Prefetch caches structures of src and dst.  Dst and src each must be a pointer to struct.
+// contents is not copied. It can be used for checking ability of copying.
+//
+// copy.Prefetch(&dst, &src)
+func Prepare(dst, src interface{}) {
+	DefaultCopier.Prepare(src, dst)
+}
+
+// Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
+func Copy(dst, src interface{}) {
+	DefaultCopier.Copy(src, dst)
+}
+
+// More safe and independent from internal structs
+// func ifaceToPtr(i interface{}) unsafe.Pointer {
+// 	v := reflect.ValueOf(i)
+// 	if v.Kind() != reflect.Ptr {
+// 		panic("source must be pointer to struct")
+// 	}
+// 	return unsafe.Pointer(srcValue.Pointer())
+// }
+
+func ifaceToPtr(i interface{}) unsafe.Pointer {
+	if i == nil {
+		panic("input parameter is nil")
+	}
+	type iface struct {
+		Type, Data unsafe.Pointer
+	}
+	return (*(*iface)(unsafe.Pointer(&i))).Data
+}
+
+func memcopy(dst, src unsafe.Pointer, size uintptr) {
+	copy(
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: int(size), Cap: int(size)})),
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: int(size), Cap: int(size)})),
+	)
 }

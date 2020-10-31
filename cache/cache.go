@@ -8,10 +8,11 @@ import (
 )
 
 type Field struct {
-	Type reflect.Type
-	Name string
-	// Use    bool
-	Offset uintptr
+	Type       reflect.Type
+	Name       string
+	Anonymous  bool
+	Offset     uintptr
+	ParentName string
 }
 
 type Struct struct {
@@ -31,32 +32,40 @@ func parseTag(tag string) (name string, omit bool) {
 
 func NewStructInfo(t reflect.Type, tagName string) Struct {
 	s := Struct{Fields: make([]Field, 0, t.NumField()), Names: make(map[string]Field, t.NumField())}
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-		if field.PkgPath != "" {
-			continue
-		}
-		fi := Field{
-			Type: field.Type,
-			Name: field.Name,
-			// Use:    true,
-			Offset: field.Offset,
-		}
-		if tagName != "" {
-			if tag, ok := field.Tag.Lookup(tagName); ok {
-				s, omit := parseTag(tag)
-				if omit {
-					// fi.Use = false
-					continue
-				}
-				if s != "" {
-					fi.Name = s
+	var traverse func(t reflect.Type, name string)
+	traverse = func(t reflect.Type, name string) {
+		for i := 0; i < t.NumField(); i++ {
+			field := t.Field(i)
+			if field.PkgPath != "" {
+				continue
+			}
+			fi := Field{
+				Type:       field.Type,
+				Name:       field.Name,
+				Offset:     field.Offset,
+				Anonymous:  field.Anonymous && field.Type.Kind() == reflect.Struct,
+				ParentName: name,
+			}
+			if tagName != "" {
+				if tag, ok := field.Tag.Lookup(tagName); ok {
+					s, omit := parseTag(tag)
+					if omit {
+						// fi.Use = false
+						continue
+					}
+					if s != "" {
+						fi.Name = s
+					}
 				}
 			}
+			s.Fields = append(s.Fields, fi)
+			s.Names[fi.Name] = fi
+			if fi.Anonymous {
+				traverse(fi.Type, fi.Name+".")
+			}
 		}
-		s.Fields = append(s.Fields, fi)
-		s.Names[fi.Name] = fi
 	}
+	traverse(t, "")
 	return s
 }
 

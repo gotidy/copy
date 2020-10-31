@@ -34,10 +34,10 @@ src := User{
     Age: 33,
     Married: false,
 }
-dest := Employee{}
+dst := Employee{}
 
 c := New("") // New("json")
-c.Copy(&src, &dest)
+c.Copy(&dst, &src)
 ```
 
 ## Documentation

@@ -13,28 +13,33 @@ type Types struct {
 	list []string
 }
 
-var types = [][]string{
-	{
-		"int", "int8", "int16", "int32", "int64",
-		"uint", "uint8", "uint16", "uint32", "uint64",
-	},
-	{
-		"float32", "float64",
-	},
-	{
-		"bool",
-	},
-	{
-		"complex64", "complex128",
-	},
-	{
-		"string", "[]byte",
-	},
-	{
-		"time.Time",
-	},
-	{
-		"time.Duration",
+var data = struct {
+	Types [][]string
+	Sizes []int
+}{
+	Types: [][]string{
+		{
+			"int", "int8", "int16", "int32", "int64",
+			"uint", "uint8", "uint16", "uint32", "uint64",
+		},
+		{
+			"float32", "float64",
+		},
+		{
+			"bool",
+		},
+		{
+			"complex64", "complex128",
+		},
+		{
+			"string", "[]byte",
+		},
+		{
+			"time.Time",
+		},
+		{
+			"time.Duration",
+		},
 	},
 }
 
@@ -63,60 +68,85 @@ func typeOfPointer(v interface{}) reflect.Type {
 
 type CopyFuncs struct {
 	mu    sync.RWMutex
-	funcs map[funcKey]func(src, dest unsafe.Pointer)
+	funcs map[funcKey]func(dst, src unsafe.Pointer)
+	sizes []func(dst, src unsafe.Pointer)
 }
 
-func (t *CopyFuncs) Get(src, dest reflect.Type) func(src, dest unsafe.Pointer) {
+func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	t.mu.RLock()
-	f := t.funcs[funcKey{Src: src, Dest: dest}]
+	f := t.funcs[funcKey{Src: src, Dest: dst}]
 	t.mu.RUnlock()
-	return f
+	if f != nil {
+		return f
+	}
+	if dst.Kind() != src.Kind() {
+		return nil
+	}
+	if dst.Kind() == reflect.String {
+		// TODO
+		return nil
+	}
+	same := dst == src
+	switch dst.Kind() {
+	case reflect.Array, reflect.Chan, reflect.Map, reflect.Ptr, reflect.Slice:
+		same = same || dst.Elem() == src.Elem()
+	}
+
+	if same && dst.Size() == src.Size() && src.Size() > 0 && src.Size() <= uintptr(len(t.sizes)) {
+		return t.sizes[src.Size()-1]
+	}
+	return nil
 }
 
-func (t *CopyFuncs) Set(src, dest reflect.Type, f func(src, dest unsafe.Pointer)) {
+func (t *CopyFuncs) Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
 	t.mu.Lock()
-	t.funcs[funcKey{Src: src, Dest: dest}] = f
+	t.funcs[funcKey{Src: src, Dest: dst}] = f
 	t.mu.Unlock()
 }
 
-func Get(src, dest reflect.Type) func(src, dest unsafe.Pointer) {
-	return funcs.Get(src, dest)
+func Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
+	return funcs.Get(dst, src)
 }
 
-func Set(src, dest reflect.Type, f func(src, dest unsafe.Pointer)) {
-	funcs.Set(src, dest, f)
+func Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
+	funcs.Set(dst, src, f)
 }
 
 var funcs = &CopyFuncs{
-	funcs: map[funcKey]func(src, dest unsafe.Pointer){
-		{{- range $types :=.}}{{range $dest := $types}}{{range $src := $types}} 
-		// {{$src}} to {{$dest}}
-		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOf({{$dest}}({{default $dest}}))}:    Copy{{title $src}}To{{title $dest}},
-		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOf({{$dest}}({{default $dest}}))}:    CopyP{{title $src}}To{{title $dest}},
-		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOfPointer({{$dest}}({{default $dest}}))}:    Copy{{title $src}}ToP{{title $dest}},
-		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOfPointer({{$dest}}({{default $dest}}))}:    CopyP{{title $src}}ToP{{title $dest}},
+	funcs: map[funcKey]func(dst, src unsafe.Pointer){
+		{{- range $types :=.Types}}{{range $dst := $types}}{{range $src := $types}} 
+		// {{$src}} to {{$dst}}
+		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    Copy{{title $src}}To{{title $dst}},
+		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    CopyP{{title $src}}To{{title $dst}},
+		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    Copy{{title $src}}ToP{{title $dst}},
+		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    CopyP{{title $src}}ToP{{title $dst}},
 		{{- end}}{{end}}{{end}}	
 	},
+	sizes: []func(dst, src unsafe.Pointer){
+		{{range $size := $.Sizes -}}
+		Copy{{$size}},
+		{{- end}} 
+	},
 }
-{{range $types :=.}}{{range $dest := $types}}{{range $src := $types}} 
+{{range $types :=.Types}}{{range $dst := $types}}{{range $src := $types}} 
 
-// {{$src}} to {{$dest}}
+// {{$src}} to {{$dst}}
 
-func Copy{{title $src}}To{{title $dest}}(src, dest unsafe.Pointer) {
-	*(*{{$dest}})(unsafe.Pointer(dest)) = {{$dest}}(*(*{{$src}})(unsafe.Pointer(src)))
+func Copy{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
+	*(*{{$dst}})(unsafe.Pointer(dst)) = {{$dst}}(*(*{{$src}})(unsafe.Pointer(src)))
 }
 
-func CopyP{{title $src}}To{{title $dest}}(src, dest unsafe.Pointer) {
-	var v {{$dest}}
+func CopyP{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
+	var v {{$dst}}
 	if p := *(**{{$src}})(unsafe.Pointer(src)); p != nil {
-		v = {{$dest}}(*p)
+		v = {{$dst}}(*p)
 	}
-	*(*{{$dest}})(unsafe.Pointer(dest)) = v
+	*(*{{$dst}})(unsafe.Pointer(dst)) = v
 }
 
-func Copy{{title $src}}ToP{{title $dest}}(src, dest unsafe.Pointer) {
-	v := {{$dest}}(*(*{{$src}})(unsafe.Pointer(src)))
-	p := (**{{$dest}})(unsafe.Pointer(dest))
+func Copy{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
+	v := {{$dst}}(*(*{{$src}})(unsafe.Pointer(src)))
+	p := (**{{$dst}})(unsafe.Pointer(dst))
 	if p := *p; p != nil {
 		*p = v
 		return
@@ -124,13 +154,13 @@ func Copy{{title $src}}ToP{{title $dest}}(src, dest unsafe.Pointer) {
 	*p = &v
 }
 
-func CopyP{{title $src}}ToP{{title $dest}}(src, dest unsafe.Pointer) {
-	var v {{$dest}}
+func CopyP{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
+	var v {{$dst}}
 	if p := *(**{{$src}})(unsafe.Pointer(src)); p != nil {
-		v = {{$dest}}(*p)
+		v = {{$dst}}(*p)
 	}
 
-	p := (**{{$dest}})(unsafe.Pointer(dest))
+	p := (**{{$dst}})(unsafe.Pointer(dst))
 	if p := *p; p != nil {
 		*p = v
 		return
@@ -139,6 +169,13 @@ func CopyP{{title $src}}ToP{{title $dest}}(src, dest unsafe.Pointer) {
 }
 	
 {{- end}}{{end}}{{end}}	
+
+// Memcopy funcs
+{{- range $size := $.Sizes}}
+func Copy{{$size}}(dst, src unsafe.Pointer) {
+	*(*[{{$size}}]byte)(unsafe.Pointer(dst)) = *(*[{{$size}}]byte)(unsafe.Pointer(src))
+}
+{{end}} 
 
 `
 
@@ -176,6 +213,11 @@ func Create(path string) *os.File {
 }
 
 func main() {
+
+	for i := 1; i < 256; i++ {
+		data.Sizes = append(data.Sizes, i)
+	}
+
 	if len(os.Args) == 0 {
 		log.Fatal("unable to get executable path, args is empty")
 	}
@@ -193,7 +235,7 @@ func main() {
 		log.Fatalf("parsing: %s", err)
 	}
 
-	err = tmpl.Execute(unsafeFile, types)
+	err = tmpl.Execute(unsafeFile, data)
 	if err != nil {
 		log.Fatalf("execution: %s", err)
 	}
