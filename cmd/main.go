@@ -116,15 +116,15 @@ var funcs = &CopyFuncs{
 	funcs: map[funcKey]func(dst, src unsafe.Pointer){
 		{{- range $types :=.Types}}{{range $dst := $types}}{{range $src := $types}} 
 		// {{$src}} to {{$dst}}
-		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    Copy{{title $src}}To{{title $dst}},
-		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    CopyP{{title $src}}To{{title $dst}},
-		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    Copy{{title $src}}ToP{{title $dst}},
-		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    CopyP{{title $src}}ToP{{title $dst}},
+		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    copy{{title $src}}To{{title $dst}},
+		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOf({{$dst}}({{default $dst}}))}:    copyP{{title $src}}To{{title $dst}},
+		{Src: typeOf({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    copy{{title $src}}ToP{{title $dst}},
+		{Src: typeOfPointer({{$src}}({{default $src}})), Dest: typeOfPointer({{$dst}}({{default $dst}}))}:    copyP{{title $src}}ToP{{title $dst}},
 		{{- end}}{{end}}{{end}}	
 	},
 	sizes: []func(dst, src unsafe.Pointer){
 		{{range $size := $.Sizes -}}
-		Copy{{$size}},
+		copy{{$size}},
 		{{- end}} 
 	},
 }
@@ -132,11 +132,11 @@ var funcs = &CopyFuncs{
 
 // {{$src}} to {{$dst}}
 
-func Copy{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
+func copy{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
 	*(*{{$dst}})(unsafe.Pointer(dst)) = {{$dst}}(*(*{{$src}})(unsafe.Pointer(src)))
 }
 
-func CopyP{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
+func copyP{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
 	var v {{$dst}}
 	if p := *(**{{$src}})(unsafe.Pointer(src)); p != nil {
 		v = {{$dst}}(*p)
@@ -144,7 +144,7 @@ func CopyP{{title $src}}To{{title $dst}}(dst, src unsafe.Pointer) {
 	*(*{{$dst}})(unsafe.Pointer(dst)) = v
 }
 
-func Copy{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
+func copy{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
 	v := {{$dst}}(*(*{{$src}})(unsafe.Pointer(src)))
 	p := (**{{$dst}})(unsafe.Pointer(dst))
 	if p := *p; p != nil {
@@ -154,7 +154,7 @@ func Copy{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
 	*p = &v
 }
 
-func CopyP{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
+func copyP{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
 	var v {{$dst}}
 	if p := *(**{{$src}})(unsafe.Pointer(src)); p != nil {
 		v = {{$dst}}(*p)
@@ -172,7 +172,7 @@ func CopyP{{title $src}}ToP{{title $dst}}(dst, src unsafe.Pointer) {
 
 // Memcopy funcs
 {{- range $size := $.Sizes}}
-func Copy{{$size}}(dst, src unsafe.Pointer) {
+func copy{{$size}}(dst, src unsafe.Pointer) {
 	*(*[{{$size}}]byte)(unsafe.Pointer(dst)) = *(*[{{$size}}]byte)(unsafe.Pointer(src))
 }
 {{end}} 
