@@ -1,10 +1,17 @@
-# copy [![GoDoc](https://godoc.org/github.com/gotidy/copy?status.svg)](https://godoc.org/github.com/gotidy/copy) [![Go Report Card](https://goreportcard.com/badge/github.com/gotidy/copy)](https://goreportcard.com/report/github.com/gotidy/copy)
+# Package for fast copying structs of different types
 
-Fast structs copier.
+[![GoDev](https://img.shields.io/static/v1?label=godev&message=reference&color=00add8)][godev] [![Go Report Card][goreport]][goreport]
+
+[godev]: https://pkg.go.dev/github.com/google/go-cmp/cmp
+[goreport]: https://goreportcard.com/badge/github.com/gotidy/copy
+
+This package is meant to make copying of structs to/from others structs a bit easier.
 
 ## Installation
 
-`go get github.com/gotidy/copy`
+```sh
+go get -u github.com/gotidy/copy
+```
 
 ## Example
 
@@ -36,13 +43,17 @@ src := User{
 }
 dst := Employee{}
 
-c := New("") // New("json")
-c.Copy(&dst, &src)
+copiers := New() // New("json")
+copiers.Copy(&dst, &src)
+
+// Or more fast use case is to create the type specific copier.
+
+copier := copiers.Get(&dst, &src)
+copier.Copy(&dst, &src)
+
 ```
 
-## Documentation
-
-[GoDoc](http://godoc.org/github.com/gotidy/copy)
+See the [documentation][godev] for more information.
 
 ## License
 
