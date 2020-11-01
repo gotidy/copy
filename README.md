@@ -1,9 +1,9 @@
 # Package for fast copying structs of different types
 
-[![GoDev](https://img.shields.io/static/v1?label=godev&message=reference&color=00add8)][godev] [![Go Report Card][goreport]][goreport]
+[![GoDev](https://img.shields.io/static/v1?label=godev&message=reference&color=00add8)][godev] [![Go Report Card](https://goreportcard.com/badge/github.com/gotidy/copy)][goreport]
 
 [godev]: https://pkg.go.dev/github.com/gotidy/copy
-[goreport]: https://goreportcard.com/badge/github.com/gotidy/copy
+[goreport]: https://goreportcard.com/report/github.com/gotidy/copy
 
 This package is meant to make copying of structs to/from others structs a bit easier.
 
