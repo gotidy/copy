@@ -1,4 +1,3 @@
-
 package funcs
 
 import (
@@ -68,588 +67,587 @@ func Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
 }
 
 var funcs = &CopyFuncs{
-	funcs: map[funcKey]func(dst, src unsafe.Pointer){ 
+	funcs: map[funcKey]func(dst, src unsafe.Pointer){
 		// int to int
-		{Src: typeOf(int(0)), Dest: typeOf(int(0))}:    CopyIntToInt,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(int(0))}:    CopyPIntToInt,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(int(0))}:    CopyIntToPInt,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int(0))}:    CopyPIntToPInt, 
+		{Src: typeOf(int(0)), Dest: typeOf(int(0))}:               CopyIntToInt,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(int(0))}:        CopyPIntToInt,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(int(0))}:        CopyIntToPInt,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int(0))}: CopyPIntToPInt,
 		// int8 to int
-		{Src: typeOf(int8(0)), Dest: typeOf(int(0))}:    CopyInt8ToInt,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(int(0))}:    CopyPInt8ToInt,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(int(0))}:    CopyInt8ToPInt,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int(0))}:    CopyPInt8ToPInt, 
+		{Src: typeOf(int8(0)), Dest: typeOf(int(0))}:               CopyInt8ToInt,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(int(0))}:        CopyPInt8ToInt,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(int(0))}:        CopyInt8ToPInt,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int(0))}: CopyPInt8ToPInt,
 		// int16 to int
-		{Src: typeOf(int16(0)), Dest: typeOf(int(0))}:    CopyInt16ToInt,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(int(0))}:    CopyPInt16ToInt,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(int(0))}:    CopyInt16ToPInt,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int(0))}:    CopyPInt16ToPInt, 
+		{Src: typeOf(int16(0)), Dest: typeOf(int(0))}:               CopyInt16ToInt,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(int(0))}:        CopyPInt16ToInt,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(int(0))}:        CopyInt16ToPInt,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int(0))}: CopyPInt16ToPInt,
 		// int32 to int
-		{Src: typeOf(int32(0)), Dest: typeOf(int(0))}:    CopyInt32ToInt,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(int(0))}:    CopyPInt32ToInt,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(int(0))}:    CopyInt32ToPInt,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int(0))}:    CopyPInt32ToPInt, 
+		{Src: typeOf(int32(0)), Dest: typeOf(int(0))}:               CopyInt32ToInt,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(int(0))}:        CopyPInt32ToInt,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(int(0))}:        CopyInt32ToPInt,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int(0))}: CopyPInt32ToPInt,
 		// int64 to int
-		{Src: typeOf(int64(0)), Dest: typeOf(int(0))}:    CopyInt64ToInt,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(int(0))}:    CopyPInt64ToInt,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(int(0))}:    CopyInt64ToPInt,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int(0))}:    CopyPInt64ToPInt, 
+		{Src: typeOf(int64(0)), Dest: typeOf(int(0))}:               CopyInt64ToInt,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(int(0))}:        CopyPInt64ToInt,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(int(0))}:        CopyInt64ToPInt,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int(0))}: CopyPInt64ToPInt,
 		// uint to int
-		{Src: typeOf(uint(0)), Dest: typeOf(int(0))}:    CopyUintToInt,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(int(0))}:    CopyPUintToInt,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(int(0))}:    CopyUintToPInt,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int(0))}:    CopyPUintToPInt, 
+		{Src: typeOf(uint(0)), Dest: typeOf(int(0))}:               CopyUintToInt,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(int(0))}:        CopyPUintToInt,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(int(0))}:        CopyUintToPInt,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int(0))}: CopyPUintToPInt,
 		// uint8 to int
-		{Src: typeOf(uint8(0)), Dest: typeOf(int(0))}:    CopyUint8ToInt,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int(0))}:    CopyPUint8ToInt,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int(0))}:    CopyUint8ToPInt,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int(0))}:    CopyPUint8ToPInt, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(int(0))}:               CopyUint8ToInt,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int(0))}:        CopyPUint8ToInt,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int(0))}:        CopyUint8ToPInt,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int(0))}: CopyPUint8ToPInt,
 		// uint16 to int
-		{Src: typeOf(uint16(0)), Dest: typeOf(int(0))}:    CopyUint16ToInt,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int(0))}:    CopyPUint16ToInt,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int(0))}:    CopyUint16ToPInt,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int(0))}:    CopyPUint16ToPInt, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(int(0))}:               CopyUint16ToInt,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int(0))}:        CopyPUint16ToInt,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int(0))}:        CopyUint16ToPInt,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int(0))}: CopyPUint16ToPInt,
 		// uint32 to int
-		{Src: typeOf(uint32(0)), Dest: typeOf(int(0))}:    CopyUint32ToInt,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int(0))}:    CopyPUint32ToInt,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int(0))}:    CopyUint32ToPInt,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int(0))}:    CopyPUint32ToPInt, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(int(0))}:               CopyUint32ToInt,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int(0))}:        CopyPUint32ToInt,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int(0))}:        CopyUint32ToPInt,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int(0))}: CopyPUint32ToPInt,
 		// uint64 to int
-		{Src: typeOf(uint64(0)), Dest: typeOf(int(0))}:    CopyUint64ToInt,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int(0))}:    CopyPUint64ToInt,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int(0))}:    CopyUint64ToPInt,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int(0))}:    CopyPUint64ToPInt, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(int(0))}:               CopyUint64ToInt,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int(0))}:        CopyPUint64ToInt,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int(0))}:        CopyUint64ToPInt,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int(0))}: CopyPUint64ToPInt,
 		// int to int8
-		{Src: typeOf(int(0)), Dest: typeOf(int8(0))}:    CopyIntToInt8,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(int8(0))}:    CopyPIntToInt8,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(int8(0))}:    CopyIntToPInt8,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int8(0))}:    CopyPIntToPInt8, 
+		{Src: typeOf(int(0)), Dest: typeOf(int8(0))}:               CopyIntToInt8,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(int8(0))}:        CopyPIntToInt8,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(int8(0))}:        CopyIntToPInt8,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int8(0))}: CopyPIntToPInt8,
 		// int8 to int8
-		{Src: typeOf(int8(0)), Dest: typeOf(int8(0))}:    CopyInt8ToInt8,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(int8(0))}:    CopyPInt8ToInt8,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(int8(0))}:    CopyInt8ToPInt8,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int8(0))}:    CopyPInt8ToPInt8, 
+		{Src: typeOf(int8(0)), Dest: typeOf(int8(0))}:               CopyInt8ToInt8,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(int8(0))}:        CopyPInt8ToInt8,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(int8(0))}:        CopyInt8ToPInt8,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int8(0))}: CopyPInt8ToPInt8,
 		// int16 to int8
-		{Src: typeOf(int16(0)), Dest: typeOf(int8(0))}:    CopyInt16ToInt8,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(int8(0))}:    CopyPInt16ToInt8,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(int8(0))}:    CopyInt16ToPInt8,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int8(0))}:    CopyPInt16ToPInt8, 
+		{Src: typeOf(int16(0)), Dest: typeOf(int8(0))}:               CopyInt16ToInt8,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(int8(0))}:        CopyPInt16ToInt8,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(int8(0))}:        CopyInt16ToPInt8,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int8(0))}: CopyPInt16ToPInt8,
 		// int32 to int8
-		{Src: typeOf(int32(0)), Dest: typeOf(int8(0))}:    CopyInt32ToInt8,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(int8(0))}:    CopyPInt32ToInt8,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(int8(0))}:    CopyInt32ToPInt8,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int8(0))}:    CopyPInt32ToPInt8, 
+		{Src: typeOf(int32(0)), Dest: typeOf(int8(0))}:               CopyInt32ToInt8,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(int8(0))}:        CopyPInt32ToInt8,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(int8(0))}:        CopyInt32ToPInt8,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int8(0))}: CopyPInt32ToPInt8,
 		// int64 to int8
-		{Src: typeOf(int64(0)), Dest: typeOf(int8(0))}:    CopyInt64ToInt8,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(int8(0))}:    CopyPInt64ToInt8,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(int8(0))}:    CopyInt64ToPInt8,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int8(0))}:    CopyPInt64ToPInt8, 
+		{Src: typeOf(int64(0)), Dest: typeOf(int8(0))}:               CopyInt64ToInt8,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(int8(0))}:        CopyPInt64ToInt8,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(int8(0))}:        CopyInt64ToPInt8,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int8(0))}: CopyPInt64ToPInt8,
 		// uint to int8
-		{Src: typeOf(uint(0)), Dest: typeOf(int8(0))}:    CopyUintToInt8,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(int8(0))}:    CopyPUintToInt8,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(int8(0))}:    CopyUintToPInt8,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int8(0))}:    CopyPUintToPInt8, 
+		{Src: typeOf(uint(0)), Dest: typeOf(int8(0))}:               CopyUintToInt8,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(int8(0))}:        CopyPUintToInt8,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(int8(0))}:        CopyUintToPInt8,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int8(0))}: CopyPUintToPInt8,
 		// uint8 to int8
-		{Src: typeOf(uint8(0)), Dest: typeOf(int8(0))}:    CopyUint8ToInt8,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int8(0))}:    CopyPUint8ToInt8,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int8(0))}:    CopyUint8ToPInt8,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int8(0))}:    CopyPUint8ToPInt8, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(int8(0))}:               CopyUint8ToInt8,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int8(0))}:        CopyPUint8ToInt8,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int8(0))}:        CopyUint8ToPInt8,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int8(0))}: CopyPUint8ToPInt8,
 		// uint16 to int8
-		{Src: typeOf(uint16(0)), Dest: typeOf(int8(0))}:    CopyUint16ToInt8,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int8(0))}:    CopyPUint16ToInt8,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int8(0))}:    CopyUint16ToPInt8,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int8(0))}:    CopyPUint16ToPInt8, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(int8(0))}:               CopyUint16ToInt8,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int8(0))}:        CopyPUint16ToInt8,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int8(0))}:        CopyUint16ToPInt8,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int8(0))}: CopyPUint16ToPInt8,
 		// uint32 to int8
-		{Src: typeOf(uint32(0)), Dest: typeOf(int8(0))}:    CopyUint32ToInt8,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int8(0))}:    CopyPUint32ToInt8,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int8(0))}:    CopyUint32ToPInt8,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int8(0))}:    CopyPUint32ToPInt8, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(int8(0))}:               CopyUint32ToInt8,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int8(0))}:        CopyPUint32ToInt8,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int8(0))}:        CopyUint32ToPInt8,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int8(0))}: CopyPUint32ToPInt8,
 		// uint64 to int8
-		{Src: typeOf(uint64(0)), Dest: typeOf(int8(0))}:    CopyUint64ToInt8,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int8(0))}:    CopyPUint64ToInt8,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int8(0))}:    CopyUint64ToPInt8,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int8(0))}:    CopyPUint64ToPInt8, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(int8(0))}:               CopyUint64ToInt8,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int8(0))}:        CopyPUint64ToInt8,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int8(0))}:        CopyUint64ToPInt8,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int8(0))}: CopyPUint64ToPInt8,
 		// int to int16
-		{Src: typeOf(int(0)), Dest: typeOf(int16(0))}:    CopyIntToInt16,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(int16(0))}:    CopyPIntToInt16,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(int16(0))}:    CopyIntToPInt16,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int16(0))}:    CopyPIntToPInt16, 
+		{Src: typeOf(int(0)), Dest: typeOf(int16(0))}:               CopyIntToInt16,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(int16(0))}:        CopyPIntToInt16,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(int16(0))}:        CopyIntToPInt16,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int16(0))}: CopyPIntToPInt16,
 		// int8 to int16
-		{Src: typeOf(int8(0)), Dest: typeOf(int16(0))}:    CopyInt8ToInt16,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(int16(0))}:    CopyPInt8ToInt16,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(int16(0))}:    CopyInt8ToPInt16,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int16(0))}:    CopyPInt8ToPInt16, 
+		{Src: typeOf(int8(0)), Dest: typeOf(int16(0))}:               CopyInt8ToInt16,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(int16(0))}:        CopyPInt8ToInt16,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(int16(0))}:        CopyInt8ToPInt16,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int16(0))}: CopyPInt8ToPInt16,
 		// int16 to int16
-		{Src: typeOf(int16(0)), Dest: typeOf(int16(0))}:    CopyInt16ToInt16,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(int16(0))}:    CopyPInt16ToInt16,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(int16(0))}:    CopyInt16ToPInt16,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int16(0))}:    CopyPInt16ToPInt16, 
+		{Src: typeOf(int16(0)), Dest: typeOf(int16(0))}:               CopyInt16ToInt16,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(int16(0))}:        CopyPInt16ToInt16,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(int16(0))}:        CopyInt16ToPInt16,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int16(0))}: CopyPInt16ToPInt16,
 		// int32 to int16
-		{Src: typeOf(int32(0)), Dest: typeOf(int16(0))}:    CopyInt32ToInt16,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(int16(0))}:    CopyPInt32ToInt16,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(int16(0))}:    CopyInt32ToPInt16,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int16(0))}:    CopyPInt32ToPInt16, 
+		{Src: typeOf(int32(0)), Dest: typeOf(int16(0))}:               CopyInt32ToInt16,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(int16(0))}:        CopyPInt32ToInt16,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(int16(0))}:        CopyInt32ToPInt16,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int16(0))}: CopyPInt32ToPInt16,
 		// int64 to int16
-		{Src: typeOf(int64(0)), Dest: typeOf(int16(0))}:    CopyInt64ToInt16,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(int16(0))}:    CopyPInt64ToInt16,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(int16(0))}:    CopyInt64ToPInt16,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int16(0))}:    CopyPInt64ToPInt16, 
+		{Src: typeOf(int64(0)), Dest: typeOf(int16(0))}:               CopyInt64ToInt16,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(int16(0))}:        CopyPInt64ToInt16,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(int16(0))}:        CopyInt64ToPInt16,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int16(0))}: CopyPInt64ToPInt16,
 		// uint to int16
-		{Src: typeOf(uint(0)), Dest: typeOf(int16(0))}:    CopyUintToInt16,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(int16(0))}:    CopyPUintToInt16,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(int16(0))}:    CopyUintToPInt16,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int16(0))}:    CopyPUintToPInt16, 
+		{Src: typeOf(uint(0)), Dest: typeOf(int16(0))}:               CopyUintToInt16,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(int16(0))}:        CopyPUintToInt16,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(int16(0))}:        CopyUintToPInt16,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int16(0))}: CopyPUintToPInt16,
 		// uint8 to int16
-		{Src: typeOf(uint8(0)), Dest: typeOf(int16(0))}:    CopyUint8ToInt16,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int16(0))}:    CopyPUint8ToInt16,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int16(0))}:    CopyUint8ToPInt16,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int16(0))}:    CopyPUint8ToPInt16, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(int16(0))}:               CopyUint8ToInt16,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int16(0))}:        CopyPUint8ToInt16,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int16(0))}:        CopyUint8ToPInt16,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int16(0))}: CopyPUint8ToPInt16,
 		// uint16 to int16
-		{Src: typeOf(uint16(0)), Dest: typeOf(int16(0))}:    CopyUint16ToInt16,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int16(0))}:    CopyPUint16ToInt16,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int16(0))}:    CopyUint16ToPInt16,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int16(0))}:    CopyPUint16ToPInt16, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(int16(0))}:               CopyUint16ToInt16,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int16(0))}:        CopyPUint16ToInt16,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int16(0))}:        CopyUint16ToPInt16,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int16(0))}: CopyPUint16ToPInt16,
 		// uint32 to int16
-		{Src: typeOf(uint32(0)), Dest: typeOf(int16(0))}:    CopyUint32ToInt16,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int16(0))}:    CopyPUint32ToInt16,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int16(0))}:    CopyUint32ToPInt16,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int16(0))}:    CopyPUint32ToPInt16, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(int16(0))}:               CopyUint32ToInt16,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int16(0))}:        CopyPUint32ToInt16,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int16(0))}:        CopyUint32ToPInt16,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int16(0))}: CopyPUint32ToPInt16,
 		// uint64 to int16
-		{Src: typeOf(uint64(0)), Dest: typeOf(int16(0))}:    CopyUint64ToInt16,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int16(0))}:    CopyPUint64ToInt16,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int16(0))}:    CopyUint64ToPInt16,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int16(0))}:    CopyPUint64ToPInt16, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(int16(0))}:               CopyUint64ToInt16,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int16(0))}:        CopyPUint64ToInt16,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int16(0))}:        CopyUint64ToPInt16,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int16(0))}: CopyPUint64ToPInt16,
 		// int to int32
-		{Src: typeOf(int(0)), Dest: typeOf(int32(0))}:    CopyIntToInt32,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(int32(0))}:    CopyPIntToInt32,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(int32(0))}:    CopyIntToPInt32,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int32(0))}:    CopyPIntToPInt32, 
+		{Src: typeOf(int(0)), Dest: typeOf(int32(0))}:               CopyIntToInt32,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(int32(0))}:        CopyPIntToInt32,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(int32(0))}:        CopyIntToPInt32,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int32(0))}: CopyPIntToPInt32,
 		// int8 to int32
-		{Src: typeOf(int8(0)), Dest: typeOf(int32(0))}:    CopyInt8ToInt32,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(int32(0))}:    CopyPInt8ToInt32,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(int32(0))}:    CopyInt8ToPInt32,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int32(0))}:    CopyPInt8ToPInt32, 
+		{Src: typeOf(int8(0)), Dest: typeOf(int32(0))}:               CopyInt8ToInt32,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(int32(0))}:        CopyPInt8ToInt32,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(int32(0))}:        CopyInt8ToPInt32,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int32(0))}: CopyPInt8ToPInt32,
 		// int16 to int32
-		{Src: typeOf(int16(0)), Dest: typeOf(int32(0))}:    CopyInt16ToInt32,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(int32(0))}:    CopyPInt16ToInt32,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(int32(0))}:    CopyInt16ToPInt32,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int32(0))}:    CopyPInt16ToPInt32, 
+		{Src: typeOf(int16(0)), Dest: typeOf(int32(0))}:               CopyInt16ToInt32,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(int32(0))}:        CopyPInt16ToInt32,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(int32(0))}:        CopyInt16ToPInt32,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int32(0))}: CopyPInt16ToPInt32,
 		// int32 to int32
-		{Src: typeOf(int32(0)), Dest: typeOf(int32(0))}:    CopyInt32ToInt32,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(int32(0))}:    CopyPInt32ToInt32,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(int32(0))}:    CopyInt32ToPInt32,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int32(0))}:    CopyPInt32ToPInt32, 
+		{Src: typeOf(int32(0)), Dest: typeOf(int32(0))}:               CopyInt32ToInt32,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(int32(0))}:        CopyPInt32ToInt32,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(int32(0))}:        CopyInt32ToPInt32,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int32(0))}: CopyPInt32ToPInt32,
 		// int64 to int32
-		{Src: typeOf(int64(0)), Dest: typeOf(int32(0))}:    CopyInt64ToInt32,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(int32(0))}:    CopyPInt64ToInt32,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(int32(0))}:    CopyInt64ToPInt32,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int32(0))}:    CopyPInt64ToPInt32, 
+		{Src: typeOf(int64(0)), Dest: typeOf(int32(0))}:               CopyInt64ToInt32,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(int32(0))}:        CopyPInt64ToInt32,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(int32(0))}:        CopyInt64ToPInt32,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int32(0))}: CopyPInt64ToPInt32,
 		// uint to int32
-		{Src: typeOf(uint(0)), Dest: typeOf(int32(0))}:    CopyUintToInt32,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(int32(0))}:    CopyPUintToInt32,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(int32(0))}:    CopyUintToPInt32,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int32(0))}:    CopyPUintToPInt32, 
+		{Src: typeOf(uint(0)), Dest: typeOf(int32(0))}:               CopyUintToInt32,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(int32(0))}:        CopyPUintToInt32,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(int32(0))}:        CopyUintToPInt32,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int32(0))}: CopyPUintToPInt32,
 		// uint8 to int32
-		{Src: typeOf(uint8(0)), Dest: typeOf(int32(0))}:    CopyUint8ToInt32,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int32(0))}:    CopyPUint8ToInt32,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int32(0))}:    CopyUint8ToPInt32,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int32(0))}:    CopyPUint8ToPInt32, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(int32(0))}:               CopyUint8ToInt32,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int32(0))}:        CopyPUint8ToInt32,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int32(0))}:        CopyUint8ToPInt32,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int32(0))}: CopyPUint8ToPInt32,
 		// uint16 to int32
-		{Src: typeOf(uint16(0)), Dest: typeOf(int32(0))}:    CopyUint16ToInt32,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int32(0))}:    CopyPUint16ToInt32,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int32(0))}:    CopyUint16ToPInt32,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int32(0))}:    CopyPUint16ToPInt32, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(int32(0))}:               CopyUint16ToInt32,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int32(0))}:        CopyPUint16ToInt32,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int32(0))}:        CopyUint16ToPInt32,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int32(0))}: CopyPUint16ToPInt32,
 		// uint32 to int32
-		{Src: typeOf(uint32(0)), Dest: typeOf(int32(0))}:    CopyUint32ToInt32,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int32(0))}:    CopyPUint32ToInt32,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int32(0))}:    CopyUint32ToPInt32,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int32(0))}:    CopyPUint32ToPInt32, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(int32(0))}:               CopyUint32ToInt32,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int32(0))}:        CopyPUint32ToInt32,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int32(0))}:        CopyUint32ToPInt32,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int32(0))}: CopyPUint32ToPInt32,
 		// uint64 to int32
-		{Src: typeOf(uint64(0)), Dest: typeOf(int32(0))}:    CopyUint64ToInt32,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int32(0))}:    CopyPUint64ToInt32,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int32(0))}:    CopyUint64ToPInt32,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int32(0))}:    CopyPUint64ToPInt32, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(int32(0))}:               CopyUint64ToInt32,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int32(0))}:        CopyPUint64ToInt32,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int32(0))}:        CopyUint64ToPInt32,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int32(0))}: CopyPUint64ToPInt32,
 		// int to int64
-		{Src: typeOf(int(0)), Dest: typeOf(int64(0))}:    CopyIntToInt64,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(int64(0))}:    CopyPIntToInt64,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(int64(0))}:    CopyIntToPInt64,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int64(0))}:    CopyPIntToPInt64, 
+		{Src: typeOf(int(0)), Dest: typeOf(int64(0))}:               CopyIntToInt64,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(int64(0))}:        CopyPIntToInt64,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(int64(0))}:        CopyIntToPInt64,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(int64(0))}: CopyPIntToPInt64,
 		// int8 to int64
-		{Src: typeOf(int8(0)), Dest: typeOf(int64(0))}:    CopyInt8ToInt64,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(int64(0))}:    CopyPInt8ToInt64,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(int64(0))}:    CopyInt8ToPInt64,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int64(0))}:    CopyPInt8ToPInt64, 
+		{Src: typeOf(int8(0)), Dest: typeOf(int64(0))}:               CopyInt8ToInt64,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(int64(0))}:        CopyPInt8ToInt64,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(int64(0))}:        CopyInt8ToPInt64,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(int64(0))}: CopyPInt8ToPInt64,
 		// int16 to int64
-		{Src: typeOf(int16(0)), Dest: typeOf(int64(0))}:    CopyInt16ToInt64,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(int64(0))}:    CopyPInt16ToInt64,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(int64(0))}:    CopyInt16ToPInt64,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int64(0))}:    CopyPInt16ToPInt64, 
+		{Src: typeOf(int16(0)), Dest: typeOf(int64(0))}:               CopyInt16ToInt64,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(int64(0))}:        CopyPInt16ToInt64,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(int64(0))}:        CopyInt16ToPInt64,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(int64(0))}: CopyPInt16ToPInt64,
 		// int32 to int64
-		{Src: typeOf(int32(0)), Dest: typeOf(int64(0))}:    CopyInt32ToInt64,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(int64(0))}:    CopyPInt32ToInt64,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(int64(0))}:    CopyInt32ToPInt64,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int64(0))}:    CopyPInt32ToPInt64, 
+		{Src: typeOf(int32(0)), Dest: typeOf(int64(0))}:               CopyInt32ToInt64,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(int64(0))}:        CopyPInt32ToInt64,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(int64(0))}:        CopyInt32ToPInt64,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(int64(0))}: CopyPInt32ToPInt64,
 		// int64 to int64
-		{Src: typeOf(int64(0)), Dest: typeOf(int64(0))}:    CopyInt64ToInt64,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(int64(0))}:    CopyPInt64ToInt64,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(int64(0))}:    CopyInt64ToPInt64,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int64(0))}:    CopyPInt64ToPInt64, 
+		{Src: typeOf(int64(0)), Dest: typeOf(int64(0))}:               CopyInt64ToInt64,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(int64(0))}:        CopyPInt64ToInt64,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(int64(0))}:        CopyInt64ToPInt64,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(int64(0))}: CopyPInt64ToPInt64,
 		// uint to int64
-		{Src: typeOf(uint(0)), Dest: typeOf(int64(0))}:    CopyUintToInt64,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(int64(0))}:    CopyPUintToInt64,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(int64(0))}:    CopyUintToPInt64,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int64(0))}:    CopyPUintToPInt64, 
+		{Src: typeOf(uint(0)), Dest: typeOf(int64(0))}:               CopyUintToInt64,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(int64(0))}:        CopyPUintToInt64,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(int64(0))}:        CopyUintToPInt64,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(int64(0))}: CopyPUintToPInt64,
 		// uint8 to int64
-		{Src: typeOf(uint8(0)), Dest: typeOf(int64(0))}:    CopyUint8ToInt64,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int64(0))}:    CopyPUint8ToInt64,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int64(0))}:    CopyUint8ToPInt64,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int64(0))}:    CopyPUint8ToPInt64, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(int64(0))}:               CopyUint8ToInt64,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(int64(0))}:        CopyPUint8ToInt64,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(int64(0))}:        CopyUint8ToPInt64,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(int64(0))}: CopyPUint8ToPInt64,
 		// uint16 to int64
-		{Src: typeOf(uint16(0)), Dest: typeOf(int64(0))}:    CopyUint16ToInt64,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int64(0))}:    CopyPUint16ToInt64,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int64(0))}:    CopyUint16ToPInt64,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int64(0))}:    CopyPUint16ToPInt64, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(int64(0))}:               CopyUint16ToInt64,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(int64(0))}:        CopyPUint16ToInt64,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(int64(0))}:        CopyUint16ToPInt64,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(int64(0))}: CopyPUint16ToPInt64,
 		// uint32 to int64
-		{Src: typeOf(uint32(0)), Dest: typeOf(int64(0))}:    CopyUint32ToInt64,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int64(0))}:    CopyPUint32ToInt64,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int64(0))}:    CopyUint32ToPInt64,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int64(0))}:    CopyPUint32ToPInt64, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(int64(0))}:               CopyUint32ToInt64,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(int64(0))}:        CopyPUint32ToInt64,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(int64(0))}:        CopyUint32ToPInt64,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(int64(0))}: CopyPUint32ToPInt64,
 		// uint64 to int64
-		{Src: typeOf(uint64(0)), Dest: typeOf(int64(0))}:    CopyUint64ToInt64,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int64(0))}:    CopyPUint64ToInt64,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int64(0))}:    CopyUint64ToPInt64,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int64(0))}:    CopyPUint64ToPInt64, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(int64(0))}:               CopyUint64ToInt64,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(int64(0))}:        CopyPUint64ToInt64,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(int64(0))}:        CopyUint64ToPInt64,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(int64(0))}: CopyPUint64ToPInt64,
 		// int to uint
-		{Src: typeOf(int(0)), Dest: typeOf(uint(0))}:    CopyIntToUint,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(uint(0))}:    CopyPIntToUint,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(uint(0))}:    CopyIntToPUint,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint(0))}:    CopyPIntToPUint, 
+		{Src: typeOf(int(0)), Dest: typeOf(uint(0))}:               CopyIntToUint,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(uint(0))}:        CopyPIntToUint,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(uint(0))}:        CopyIntToPUint,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint(0))}: CopyPIntToPUint,
 		// int8 to uint
-		{Src: typeOf(int8(0)), Dest: typeOf(uint(0))}:    CopyInt8ToUint,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint(0))}:    CopyPInt8ToUint,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint(0))}:    CopyInt8ToPUint,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint(0))}:    CopyPInt8ToPUint, 
+		{Src: typeOf(int8(0)), Dest: typeOf(uint(0))}:               CopyInt8ToUint,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint(0))}:        CopyPInt8ToUint,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint(0))}:        CopyInt8ToPUint,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint(0))}: CopyPInt8ToPUint,
 		// int16 to uint
-		{Src: typeOf(int16(0)), Dest: typeOf(uint(0))}:    CopyInt16ToUint,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint(0))}:    CopyPInt16ToUint,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint(0))}:    CopyInt16ToPUint,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint(0))}:    CopyPInt16ToPUint, 
+		{Src: typeOf(int16(0)), Dest: typeOf(uint(0))}:               CopyInt16ToUint,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint(0))}:        CopyPInt16ToUint,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint(0))}:        CopyInt16ToPUint,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint(0))}: CopyPInt16ToPUint,
 		// int32 to uint
-		{Src: typeOf(int32(0)), Dest: typeOf(uint(0))}:    CopyInt32ToUint,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint(0))}:    CopyPInt32ToUint,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint(0))}:    CopyInt32ToPUint,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint(0))}:    CopyPInt32ToPUint, 
+		{Src: typeOf(int32(0)), Dest: typeOf(uint(0))}:               CopyInt32ToUint,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint(0))}:        CopyPInt32ToUint,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint(0))}:        CopyInt32ToPUint,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint(0))}: CopyPInt32ToPUint,
 		// int64 to uint
-		{Src: typeOf(int64(0)), Dest: typeOf(uint(0))}:    CopyInt64ToUint,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint(0))}:    CopyPInt64ToUint,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint(0))}:    CopyInt64ToPUint,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint(0))}:    CopyPInt64ToPUint, 
+		{Src: typeOf(int64(0)), Dest: typeOf(uint(0))}:               CopyInt64ToUint,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint(0))}:        CopyPInt64ToUint,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint(0))}:        CopyInt64ToPUint,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint(0))}: CopyPInt64ToPUint,
 		// uint to uint
-		{Src: typeOf(uint(0)), Dest: typeOf(uint(0))}:    CopyUintToUint,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint(0))}:    CopyPUintToUint,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint(0))}:    CopyUintToPUint,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint(0))}:    CopyPUintToPUint, 
+		{Src: typeOf(uint(0)), Dest: typeOf(uint(0))}:               CopyUintToUint,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint(0))}:        CopyPUintToUint,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint(0))}:        CopyUintToPUint,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint(0))}: CopyPUintToPUint,
 		// uint8 to uint
-		{Src: typeOf(uint8(0)), Dest: typeOf(uint(0))}:    CopyUint8ToUint,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint(0))}:    CopyPUint8ToUint,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint(0))}:    CopyUint8ToPUint,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint(0))}:    CopyPUint8ToPUint, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(uint(0))}:               CopyUint8ToUint,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint(0))}:        CopyPUint8ToUint,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint(0))}:        CopyUint8ToPUint,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint(0))}: CopyPUint8ToPUint,
 		// uint16 to uint
-		{Src: typeOf(uint16(0)), Dest: typeOf(uint(0))}:    CopyUint16ToUint,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint(0))}:    CopyPUint16ToUint,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint(0))}:    CopyUint16ToPUint,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint(0))}:    CopyPUint16ToPUint, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(uint(0))}:               CopyUint16ToUint,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint(0))}:        CopyPUint16ToUint,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint(0))}:        CopyUint16ToPUint,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint(0))}: CopyPUint16ToPUint,
 		// uint32 to uint
-		{Src: typeOf(uint32(0)), Dest: typeOf(uint(0))}:    CopyUint32ToUint,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint(0))}:    CopyPUint32ToUint,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint(0))}:    CopyUint32ToPUint,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint(0))}:    CopyPUint32ToPUint, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(uint(0))}:               CopyUint32ToUint,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint(0))}:        CopyPUint32ToUint,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint(0))}:        CopyUint32ToPUint,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint(0))}: CopyPUint32ToPUint,
 		// uint64 to uint
-		{Src: typeOf(uint64(0)), Dest: typeOf(uint(0))}:    CopyUint64ToUint,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint(0))}:    CopyPUint64ToUint,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint(0))}:    CopyUint64ToPUint,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint(0))}:    CopyPUint64ToPUint, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(uint(0))}:               CopyUint64ToUint,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint(0))}:        CopyPUint64ToUint,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint(0))}:        CopyUint64ToPUint,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint(0))}: CopyPUint64ToPUint,
 		// int to uint8
-		{Src: typeOf(int(0)), Dest: typeOf(uint8(0))}:    CopyIntToUint8,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(uint8(0))}:    CopyPIntToUint8,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(uint8(0))}:    CopyIntToPUint8,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint8(0))}:    CopyPIntToPUint8, 
+		{Src: typeOf(int(0)), Dest: typeOf(uint8(0))}:               CopyIntToUint8,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(uint8(0))}:        CopyPIntToUint8,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(uint8(0))}:        CopyIntToPUint8,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint8(0))}: CopyPIntToPUint8,
 		// int8 to uint8
-		{Src: typeOf(int8(0)), Dest: typeOf(uint8(0))}:    CopyInt8ToUint8,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint8(0))}:    CopyPInt8ToUint8,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint8(0))}:    CopyInt8ToPUint8,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint8(0))}:    CopyPInt8ToPUint8, 
+		{Src: typeOf(int8(0)), Dest: typeOf(uint8(0))}:               CopyInt8ToUint8,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint8(0))}:        CopyPInt8ToUint8,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint8(0))}:        CopyInt8ToPUint8,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint8(0))}: CopyPInt8ToPUint8,
 		// int16 to uint8
-		{Src: typeOf(int16(0)), Dest: typeOf(uint8(0))}:    CopyInt16ToUint8,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint8(0))}:    CopyPInt16ToUint8,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint8(0))}:    CopyInt16ToPUint8,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint8(0))}:    CopyPInt16ToPUint8, 
+		{Src: typeOf(int16(0)), Dest: typeOf(uint8(0))}:               CopyInt16ToUint8,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint8(0))}:        CopyPInt16ToUint8,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint8(0))}:        CopyInt16ToPUint8,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint8(0))}: CopyPInt16ToPUint8,
 		// int32 to uint8
-		{Src: typeOf(int32(0)), Dest: typeOf(uint8(0))}:    CopyInt32ToUint8,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint8(0))}:    CopyPInt32ToUint8,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint8(0))}:    CopyInt32ToPUint8,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint8(0))}:    CopyPInt32ToPUint8, 
+		{Src: typeOf(int32(0)), Dest: typeOf(uint8(0))}:               CopyInt32ToUint8,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint8(0))}:        CopyPInt32ToUint8,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint8(0))}:        CopyInt32ToPUint8,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint8(0))}: CopyPInt32ToPUint8,
 		// int64 to uint8
-		{Src: typeOf(int64(0)), Dest: typeOf(uint8(0))}:    CopyInt64ToUint8,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint8(0))}:    CopyPInt64ToUint8,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint8(0))}:    CopyInt64ToPUint8,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint8(0))}:    CopyPInt64ToPUint8, 
+		{Src: typeOf(int64(0)), Dest: typeOf(uint8(0))}:               CopyInt64ToUint8,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint8(0))}:        CopyPInt64ToUint8,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint8(0))}:        CopyInt64ToPUint8,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint8(0))}: CopyPInt64ToPUint8,
 		// uint to uint8
-		{Src: typeOf(uint(0)), Dest: typeOf(uint8(0))}:    CopyUintToUint8,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint8(0))}:    CopyPUintToUint8,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint8(0))}:    CopyUintToPUint8,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint8(0))}:    CopyPUintToPUint8, 
+		{Src: typeOf(uint(0)), Dest: typeOf(uint8(0))}:               CopyUintToUint8,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint8(0))}:        CopyPUintToUint8,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint8(0))}:        CopyUintToPUint8,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint8(0))}: CopyPUintToPUint8,
 		// uint8 to uint8
-		{Src: typeOf(uint8(0)), Dest: typeOf(uint8(0))}:    CopyUint8ToUint8,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint8(0))}:    CopyPUint8ToUint8,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint8(0))}:    CopyUint8ToPUint8,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint8(0))}:    CopyPUint8ToPUint8, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(uint8(0))}:               CopyUint8ToUint8,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint8(0))}:        CopyPUint8ToUint8,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint8(0))}:        CopyUint8ToPUint8,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint8(0))}: CopyPUint8ToPUint8,
 		// uint16 to uint8
-		{Src: typeOf(uint16(0)), Dest: typeOf(uint8(0))}:    CopyUint16ToUint8,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint8(0))}:    CopyPUint16ToUint8,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint8(0))}:    CopyUint16ToPUint8,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint8(0))}:    CopyPUint16ToPUint8, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(uint8(0))}:               CopyUint16ToUint8,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint8(0))}:        CopyPUint16ToUint8,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint8(0))}:        CopyUint16ToPUint8,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint8(0))}: CopyPUint16ToPUint8,
 		// uint32 to uint8
-		{Src: typeOf(uint32(0)), Dest: typeOf(uint8(0))}:    CopyUint32ToUint8,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint8(0))}:    CopyPUint32ToUint8,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint8(0))}:    CopyUint32ToPUint8,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint8(0))}:    CopyPUint32ToPUint8, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(uint8(0))}:               CopyUint32ToUint8,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint8(0))}:        CopyPUint32ToUint8,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint8(0))}:        CopyUint32ToPUint8,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint8(0))}: CopyPUint32ToPUint8,
 		// uint64 to uint8
-		{Src: typeOf(uint64(0)), Dest: typeOf(uint8(0))}:    CopyUint64ToUint8,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint8(0))}:    CopyPUint64ToUint8,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint8(0))}:    CopyUint64ToPUint8,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint8(0))}:    CopyPUint64ToPUint8, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(uint8(0))}:               CopyUint64ToUint8,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint8(0))}:        CopyPUint64ToUint8,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint8(0))}:        CopyUint64ToPUint8,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint8(0))}: CopyPUint64ToPUint8,
 		// int to uint16
-		{Src: typeOf(int(0)), Dest: typeOf(uint16(0))}:    CopyIntToUint16,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(uint16(0))}:    CopyPIntToUint16,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(uint16(0))}:    CopyIntToPUint16,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint16(0))}:    CopyPIntToPUint16, 
+		{Src: typeOf(int(0)), Dest: typeOf(uint16(0))}:               CopyIntToUint16,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(uint16(0))}:        CopyPIntToUint16,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(uint16(0))}:        CopyIntToPUint16,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint16(0))}: CopyPIntToPUint16,
 		// int8 to uint16
-		{Src: typeOf(int8(0)), Dest: typeOf(uint16(0))}:    CopyInt8ToUint16,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint16(0))}:    CopyPInt8ToUint16,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint16(0))}:    CopyInt8ToPUint16,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint16(0))}:    CopyPInt8ToPUint16, 
+		{Src: typeOf(int8(0)), Dest: typeOf(uint16(0))}:               CopyInt8ToUint16,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint16(0))}:        CopyPInt8ToUint16,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint16(0))}:        CopyInt8ToPUint16,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint16(0))}: CopyPInt8ToPUint16,
 		// int16 to uint16
-		{Src: typeOf(int16(0)), Dest: typeOf(uint16(0))}:    CopyInt16ToUint16,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint16(0))}:    CopyPInt16ToUint16,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint16(0))}:    CopyInt16ToPUint16,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint16(0))}:    CopyPInt16ToPUint16, 
+		{Src: typeOf(int16(0)), Dest: typeOf(uint16(0))}:               CopyInt16ToUint16,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint16(0))}:        CopyPInt16ToUint16,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint16(0))}:        CopyInt16ToPUint16,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint16(0))}: CopyPInt16ToPUint16,
 		// int32 to uint16
-		{Src: typeOf(int32(0)), Dest: typeOf(uint16(0))}:    CopyInt32ToUint16,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint16(0))}:    CopyPInt32ToUint16,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint16(0))}:    CopyInt32ToPUint16,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint16(0))}:    CopyPInt32ToPUint16, 
+		{Src: typeOf(int32(0)), Dest: typeOf(uint16(0))}:               CopyInt32ToUint16,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint16(0))}:        CopyPInt32ToUint16,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint16(0))}:        CopyInt32ToPUint16,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint16(0))}: CopyPInt32ToPUint16,
 		// int64 to uint16
-		{Src: typeOf(int64(0)), Dest: typeOf(uint16(0))}:    CopyInt64ToUint16,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint16(0))}:    CopyPInt64ToUint16,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint16(0))}:    CopyInt64ToPUint16,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint16(0))}:    CopyPInt64ToPUint16, 
+		{Src: typeOf(int64(0)), Dest: typeOf(uint16(0))}:               CopyInt64ToUint16,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint16(0))}:        CopyPInt64ToUint16,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint16(0))}:        CopyInt64ToPUint16,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint16(0))}: CopyPInt64ToPUint16,
 		// uint to uint16
-		{Src: typeOf(uint(0)), Dest: typeOf(uint16(0))}:    CopyUintToUint16,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint16(0))}:    CopyPUintToUint16,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint16(0))}:    CopyUintToPUint16,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint16(0))}:    CopyPUintToPUint16, 
+		{Src: typeOf(uint(0)), Dest: typeOf(uint16(0))}:               CopyUintToUint16,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint16(0))}:        CopyPUintToUint16,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint16(0))}:        CopyUintToPUint16,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint16(0))}: CopyPUintToPUint16,
 		// uint8 to uint16
-		{Src: typeOf(uint8(0)), Dest: typeOf(uint16(0))}:    CopyUint8ToUint16,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint16(0))}:    CopyPUint8ToUint16,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint16(0))}:    CopyUint8ToPUint16,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint16(0))}:    CopyPUint8ToPUint16, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(uint16(0))}:               CopyUint8ToUint16,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint16(0))}:        CopyPUint8ToUint16,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint16(0))}:        CopyUint8ToPUint16,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint16(0))}: CopyPUint8ToPUint16,
 		// uint16 to uint16
-		{Src: typeOf(uint16(0)), Dest: typeOf(uint16(0))}:    CopyUint16ToUint16,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint16(0))}:    CopyPUint16ToUint16,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint16(0))}:    CopyUint16ToPUint16,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint16(0))}:    CopyPUint16ToPUint16, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(uint16(0))}:               CopyUint16ToUint16,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint16(0))}:        CopyPUint16ToUint16,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint16(0))}:        CopyUint16ToPUint16,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint16(0))}: CopyPUint16ToPUint16,
 		// uint32 to uint16
-		{Src: typeOf(uint32(0)), Dest: typeOf(uint16(0))}:    CopyUint32ToUint16,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint16(0))}:    CopyPUint32ToUint16,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint16(0))}:    CopyUint32ToPUint16,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint16(0))}:    CopyPUint32ToPUint16, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(uint16(0))}:               CopyUint32ToUint16,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint16(0))}:        CopyPUint32ToUint16,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint16(0))}:        CopyUint32ToPUint16,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint16(0))}: CopyPUint32ToPUint16,
 		// uint64 to uint16
-		{Src: typeOf(uint64(0)), Dest: typeOf(uint16(0))}:    CopyUint64ToUint16,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint16(0))}:    CopyPUint64ToUint16,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint16(0))}:    CopyUint64ToPUint16,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint16(0))}:    CopyPUint64ToPUint16, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(uint16(0))}:               CopyUint64ToUint16,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint16(0))}:        CopyPUint64ToUint16,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint16(0))}:        CopyUint64ToPUint16,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint16(0))}: CopyPUint64ToPUint16,
 		// int to uint32
-		{Src: typeOf(int(0)), Dest: typeOf(uint32(0))}:    CopyIntToUint32,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(uint32(0))}:    CopyPIntToUint32,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(uint32(0))}:    CopyIntToPUint32,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint32(0))}:    CopyPIntToPUint32, 
+		{Src: typeOf(int(0)), Dest: typeOf(uint32(0))}:               CopyIntToUint32,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(uint32(0))}:        CopyPIntToUint32,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(uint32(0))}:        CopyIntToPUint32,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint32(0))}: CopyPIntToPUint32,
 		// int8 to uint32
-		{Src: typeOf(int8(0)), Dest: typeOf(uint32(0))}:    CopyInt8ToUint32,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint32(0))}:    CopyPInt8ToUint32,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint32(0))}:    CopyInt8ToPUint32,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint32(0))}:    CopyPInt8ToPUint32, 
+		{Src: typeOf(int8(0)), Dest: typeOf(uint32(0))}:               CopyInt8ToUint32,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint32(0))}:        CopyPInt8ToUint32,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint32(0))}:        CopyInt8ToPUint32,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint32(0))}: CopyPInt8ToPUint32,
 		// int16 to uint32
-		{Src: typeOf(int16(0)), Dest: typeOf(uint32(0))}:    CopyInt16ToUint32,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint32(0))}:    CopyPInt16ToUint32,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint32(0))}:    CopyInt16ToPUint32,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint32(0))}:    CopyPInt16ToPUint32, 
+		{Src: typeOf(int16(0)), Dest: typeOf(uint32(0))}:               CopyInt16ToUint32,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint32(0))}:        CopyPInt16ToUint32,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint32(0))}:        CopyInt16ToPUint32,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint32(0))}: CopyPInt16ToPUint32,
 		// int32 to uint32
-		{Src: typeOf(int32(0)), Dest: typeOf(uint32(0))}:    CopyInt32ToUint32,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint32(0))}:    CopyPInt32ToUint32,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint32(0))}:    CopyInt32ToPUint32,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint32(0))}:    CopyPInt32ToPUint32, 
+		{Src: typeOf(int32(0)), Dest: typeOf(uint32(0))}:               CopyInt32ToUint32,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint32(0))}:        CopyPInt32ToUint32,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint32(0))}:        CopyInt32ToPUint32,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint32(0))}: CopyPInt32ToPUint32,
 		// int64 to uint32
-		{Src: typeOf(int64(0)), Dest: typeOf(uint32(0))}:    CopyInt64ToUint32,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint32(0))}:    CopyPInt64ToUint32,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint32(0))}:    CopyInt64ToPUint32,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint32(0))}:    CopyPInt64ToPUint32, 
+		{Src: typeOf(int64(0)), Dest: typeOf(uint32(0))}:               CopyInt64ToUint32,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint32(0))}:        CopyPInt64ToUint32,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint32(0))}:        CopyInt64ToPUint32,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint32(0))}: CopyPInt64ToPUint32,
 		// uint to uint32
-		{Src: typeOf(uint(0)), Dest: typeOf(uint32(0))}:    CopyUintToUint32,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint32(0))}:    CopyPUintToUint32,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint32(0))}:    CopyUintToPUint32,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint32(0))}:    CopyPUintToPUint32, 
+		{Src: typeOf(uint(0)), Dest: typeOf(uint32(0))}:               CopyUintToUint32,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint32(0))}:        CopyPUintToUint32,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint32(0))}:        CopyUintToPUint32,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint32(0))}: CopyPUintToPUint32,
 		// uint8 to uint32
-		{Src: typeOf(uint8(0)), Dest: typeOf(uint32(0))}:    CopyUint8ToUint32,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint32(0))}:    CopyPUint8ToUint32,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint32(0))}:    CopyUint8ToPUint32,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint32(0))}:    CopyPUint8ToPUint32, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(uint32(0))}:               CopyUint8ToUint32,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint32(0))}:        CopyPUint8ToUint32,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint32(0))}:        CopyUint8ToPUint32,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint32(0))}: CopyPUint8ToPUint32,
 		// uint16 to uint32
-		{Src: typeOf(uint16(0)), Dest: typeOf(uint32(0))}:    CopyUint16ToUint32,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint32(0))}:    CopyPUint16ToUint32,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint32(0))}:    CopyUint16ToPUint32,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint32(0))}:    CopyPUint16ToPUint32, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(uint32(0))}:               CopyUint16ToUint32,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint32(0))}:        CopyPUint16ToUint32,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint32(0))}:        CopyUint16ToPUint32,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint32(0))}: CopyPUint16ToPUint32,
 		// uint32 to uint32
-		{Src: typeOf(uint32(0)), Dest: typeOf(uint32(0))}:    CopyUint32ToUint32,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint32(0))}:    CopyPUint32ToUint32,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint32(0))}:    CopyUint32ToPUint32,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint32(0))}:    CopyPUint32ToPUint32, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(uint32(0))}:               CopyUint32ToUint32,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint32(0))}:        CopyPUint32ToUint32,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint32(0))}:        CopyUint32ToPUint32,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint32(0))}: CopyPUint32ToPUint32,
 		// uint64 to uint32
-		{Src: typeOf(uint64(0)), Dest: typeOf(uint32(0))}:    CopyUint64ToUint32,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint32(0))}:    CopyPUint64ToUint32,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint32(0))}:    CopyUint64ToPUint32,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint32(0))}:    CopyPUint64ToPUint32, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(uint32(0))}:               CopyUint64ToUint32,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint32(0))}:        CopyPUint64ToUint32,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint32(0))}:        CopyUint64ToPUint32,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint32(0))}: CopyPUint64ToPUint32,
 		// int to uint64
-		{Src: typeOf(int(0)), Dest: typeOf(uint64(0))}:    CopyIntToUint64,
-		{Src: typeOfPointer(int(0)), Dest: typeOf(uint64(0))}:    CopyPIntToUint64,
-		{Src: typeOf(int(0)), Dest: typeOfPointer(uint64(0))}:    CopyIntToPUint64,
-		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint64(0))}:    CopyPIntToPUint64, 
+		{Src: typeOf(int(0)), Dest: typeOf(uint64(0))}:               CopyIntToUint64,
+		{Src: typeOfPointer(int(0)), Dest: typeOf(uint64(0))}:        CopyPIntToUint64,
+		{Src: typeOf(int(0)), Dest: typeOfPointer(uint64(0))}:        CopyIntToPUint64,
+		{Src: typeOfPointer(int(0)), Dest: typeOfPointer(uint64(0))}: CopyPIntToPUint64,
 		// int8 to uint64
-		{Src: typeOf(int8(0)), Dest: typeOf(uint64(0))}:    CopyInt8ToUint64,
-		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint64(0))}:    CopyPInt8ToUint64,
-		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint64(0))}:    CopyInt8ToPUint64,
-		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint64(0))}:    CopyPInt8ToPUint64, 
+		{Src: typeOf(int8(0)), Dest: typeOf(uint64(0))}:               CopyInt8ToUint64,
+		{Src: typeOfPointer(int8(0)), Dest: typeOf(uint64(0))}:        CopyPInt8ToUint64,
+		{Src: typeOf(int8(0)), Dest: typeOfPointer(uint64(0))}:        CopyInt8ToPUint64,
+		{Src: typeOfPointer(int8(0)), Dest: typeOfPointer(uint64(0))}: CopyPInt8ToPUint64,
 		// int16 to uint64
-		{Src: typeOf(int16(0)), Dest: typeOf(uint64(0))}:    CopyInt16ToUint64,
-		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint64(0))}:    CopyPInt16ToUint64,
-		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint64(0))}:    CopyInt16ToPUint64,
-		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint64(0))}:    CopyPInt16ToPUint64, 
+		{Src: typeOf(int16(0)), Dest: typeOf(uint64(0))}:               CopyInt16ToUint64,
+		{Src: typeOfPointer(int16(0)), Dest: typeOf(uint64(0))}:        CopyPInt16ToUint64,
+		{Src: typeOf(int16(0)), Dest: typeOfPointer(uint64(0))}:        CopyInt16ToPUint64,
+		{Src: typeOfPointer(int16(0)), Dest: typeOfPointer(uint64(0))}: CopyPInt16ToPUint64,
 		// int32 to uint64
-		{Src: typeOf(int32(0)), Dest: typeOf(uint64(0))}:    CopyInt32ToUint64,
-		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint64(0))}:    CopyPInt32ToUint64,
-		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint64(0))}:    CopyInt32ToPUint64,
-		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint64(0))}:    CopyPInt32ToPUint64, 
+		{Src: typeOf(int32(0)), Dest: typeOf(uint64(0))}:               CopyInt32ToUint64,
+		{Src: typeOfPointer(int32(0)), Dest: typeOf(uint64(0))}:        CopyPInt32ToUint64,
+		{Src: typeOf(int32(0)), Dest: typeOfPointer(uint64(0))}:        CopyInt32ToPUint64,
+		{Src: typeOfPointer(int32(0)), Dest: typeOfPointer(uint64(0))}: CopyPInt32ToPUint64,
 		// int64 to uint64
-		{Src: typeOf(int64(0)), Dest: typeOf(uint64(0))}:    CopyInt64ToUint64,
-		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint64(0))}:    CopyPInt64ToUint64,
-		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint64(0))}:    CopyInt64ToPUint64,
-		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint64(0))}:    CopyPInt64ToPUint64, 
+		{Src: typeOf(int64(0)), Dest: typeOf(uint64(0))}:               CopyInt64ToUint64,
+		{Src: typeOfPointer(int64(0)), Dest: typeOf(uint64(0))}:        CopyPInt64ToUint64,
+		{Src: typeOf(int64(0)), Dest: typeOfPointer(uint64(0))}:        CopyInt64ToPUint64,
+		{Src: typeOfPointer(int64(0)), Dest: typeOfPointer(uint64(0))}: CopyPInt64ToPUint64,
 		// uint to uint64
-		{Src: typeOf(uint(0)), Dest: typeOf(uint64(0))}:    CopyUintToUint64,
-		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint64(0))}:    CopyPUintToUint64,
-		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint64(0))}:    CopyUintToPUint64,
-		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint64(0))}:    CopyPUintToPUint64, 
+		{Src: typeOf(uint(0)), Dest: typeOf(uint64(0))}:               CopyUintToUint64,
+		{Src: typeOfPointer(uint(0)), Dest: typeOf(uint64(0))}:        CopyPUintToUint64,
+		{Src: typeOf(uint(0)), Dest: typeOfPointer(uint64(0))}:        CopyUintToPUint64,
+		{Src: typeOfPointer(uint(0)), Dest: typeOfPointer(uint64(0))}: CopyPUintToPUint64,
 		// uint8 to uint64
-		{Src: typeOf(uint8(0)), Dest: typeOf(uint64(0))}:    CopyUint8ToUint64,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint64(0))}:    CopyPUint8ToUint64,
-		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint64(0))}:    CopyUint8ToPUint64,
-		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint64(0))}:    CopyPUint8ToPUint64, 
+		{Src: typeOf(uint8(0)), Dest: typeOf(uint64(0))}:               CopyUint8ToUint64,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOf(uint64(0))}:        CopyPUint8ToUint64,
+		{Src: typeOf(uint8(0)), Dest: typeOfPointer(uint64(0))}:        CopyUint8ToPUint64,
+		{Src: typeOfPointer(uint8(0)), Dest: typeOfPointer(uint64(0))}: CopyPUint8ToPUint64,
 		// uint16 to uint64
-		{Src: typeOf(uint16(0)), Dest: typeOf(uint64(0))}:    CopyUint16ToUint64,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint64(0))}:    CopyPUint16ToUint64,
-		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint64(0))}:    CopyUint16ToPUint64,
-		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint64(0))}:    CopyPUint16ToPUint64, 
+		{Src: typeOf(uint16(0)), Dest: typeOf(uint64(0))}:               CopyUint16ToUint64,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOf(uint64(0))}:        CopyPUint16ToUint64,
+		{Src: typeOf(uint16(0)), Dest: typeOfPointer(uint64(0))}:        CopyUint16ToPUint64,
+		{Src: typeOfPointer(uint16(0)), Dest: typeOfPointer(uint64(0))}: CopyPUint16ToPUint64,
 		// uint32 to uint64
-		{Src: typeOf(uint32(0)), Dest: typeOf(uint64(0))}:    CopyUint32ToUint64,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint64(0))}:    CopyPUint32ToUint64,
-		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint64(0))}:    CopyUint32ToPUint64,
-		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint64(0))}:    CopyPUint32ToPUint64, 
+		{Src: typeOf(uint32(0)), Dest: typeOf(uint64(0))}:               CopyUint32ToUint64,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOf(uint64(0))}:        CopyPUint32ToUint64,
+		{Src: typeOf(uint32(0)), Dest: typeOfPointer(uint64(0))}:        CopyUint32ToPUint64,
+		{Src: typeOfPointer(uint32(0)), Dest: typeOfPointer(uint64(0))}: CopyPUint32ToPUint64,
 		// uint64 to uint64
-		{Src: typeOf(uint64(0)), Dest: typeOf(uint64(0))}:    CopyUint64ToUint64,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint64(0))}:    CopyPUint64ToUint64,
-		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint64(0))}:    CopyUint64ToPUint64,
-		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint64(0))}:    CopyPUint64ToPUint64, 
+		{Src: typeOf(uint64(0)), Dest: typeOf(uint64(0))}:               CopyUint64ToUint64,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOf(uint64(0))}:        CopyPUint64ToUint64,
+		{Src: typeOf(uint64(0)), Dest: typeOfPointer(uint64(0))}:        CopyUint64ToPUint64,
+		{Src: typeOfPointer(uint64(0)), Dest: typeOfPointer(uint64(0))}: CopyPUint64ToPUint64,
 		// float32 to float32
-		{Src: typeOf(float32(0)), Dest: typeOf(float32(0))}:    CopyFloat32ToFloat32,
-		{Src: typeOfPointer(float32(0)), Dest: typeOf(float32(0))}:    CopyPFloat32ToFloat32,
-		{Src: typeOf(float32(0)), Dest: typeOfPointer(float32(0))}:    CopyFloat32ToPFloat32,
-		{Src: typeOfPointer(float32(0)), Dest: typeOfPointer(float32(0))}:    CopyPFloat32ToPFloat32, 
+		{Src: typeOf(float32(0)), Dest: typeOf(float32(0))}:               CopyFloat32ToFloat32,
+		{Src: typeOfPointer(float32(0)), Dest: typeOf(float32(0))}:        CopyPFloat32ToFloat32,
+		{Src: typeOf(float32(0)), Dest: typeOfPointer(float32(0))}:        CopyFloat32ToPFloat32,
+		{Src: typeOfPointer(float32(0)), Dest: typeOfPointer(float32(0))}: CopyPFloat32ToPFloat32,
 		// float64 to float32
-		{Src: typeOf(float64(0)), Dest: typeOf(float32(0))}:    CopyFloat64ToFloat32,
-		{Src: typeOfPointer(float64(0)), Dest: typeOf(float32(0))}:    CopyPFloat64ToFloat32,
-		{Src: typeOf(float64(0)), Dest: typeOfPointer(float32(0))}:    CopyFloat64ToPFloat32,
-		{Src: typeOfPointer(float64(0)), Dest: typeOfPointer(float32(0))}:    CopyPFloat64ToPFloat32, 
+		{Src: typeOf(float64(0)), Dest: typeOf(float32(0))}:               CopyFloat64ToFloat32,
+		{Src: typeOfPointer(float64(0)), Dest: typeOf(float32(0))}:        CopyPFloat64ToFloat32,
+		{Src: typeOf(float64(0)), Dest: typeOfPointer(float32(0))}:        CopyFloat64ToPFloat32,
+		{Src: typeOfPointer(float64(0)), Dest: typeOfPointer(float32(0))}: CopyPFloat64ToPFloat32,
 		// float32 to float64
-		{Src: typeOf(float32(0)), Dest: typeOf(float64(0))}:    CopyFloat32ToFloat64,
-		{Src: typeOfPointer(float32(0)), Dest: typeOf(float64(0))}:    CopyPFloat32ToFloat64,
-		{Src: typeOf(float32(0)), Dest: typeOfPointer(float64(0))}:    CopyFloat32ToPFloat64,
-		{Src: typeOfPointer(float32(0)), Dest: typeOfPointer(float64(0))}:    CopyPFloat32ToPFloat64, 
+		{Src: typeOf(float32(0)), Dest: typeOf(float64(0))}:               CopyFloat32ToFloat64,
+		{Src: typeOfPointer(float32(0)), Dest: typeOf(float64(0))}:        CopyPFloat32ToFloat64,
+		{Src: typeOf(float32(0)), Dest: typeOfPointer(float64(0))}:        CopyFloat32ToPFloat64,
+		{Src: typeOfPointer(float32(0)), Dest: typeOfPointer(float64(0))}: CopyPFloat32ToPFloat64,
 		// float64 to float64
-		{Src: typeOf(float64(0)), Dest: typeOf(float64(0))}:    CopyFloat64ToFloat64,
-		{Src: typeOfPointer(float64(0)), Dest: typeOf(float64(0))}:    CopyPFloat64ToFloat64,
-		{Src: typeOf(float64(0)), Dest: typeOfPointer(float64(0))}:    CopyFloat64ToPFloat64,
-		{Src: typeOfPointer(float64(0)), Dest: typeOfPointer(float64(0))}:    CopyPFloat64ToPFloat64, 
+		{Src: typeOf(float64(0)), Dest: typeOf(float64(0))}:               CopyFloat64ToFloat64,
+		{Src: typeOfPointer(float64(0)), Dest: typeOf(float64(0))}:        CopyPFloat64ToFloat64,
+		{Src: typeOf(float64(0)), Dest: typeOfPointer(float64(0))}:        CopyFloat64ToPFloat64,
+		{Src: typeOfPointer(float64(0)), Dest: typeOfPointer(float64(0))}: CopyPFloat64ToPFloat64,
 		// bool to bool
-		{Src: typeOf(bool(false)), Dest: typeOf(bool(false))}:    CopyBoolToBool,
-		{Src: typeOfPointer(bool(false)), Dest: typeOf(bool(false))}:    CopyPBoolToBool,
-		{Src: typeOf(bool(false)), Dest: typeOfPointer(bool(false))}:    CopyBoolToPBool,
-		{Src: typeOfPointer(bool(false)), Dest: typeOfPointer(bool(false))}:    CopyPBoolToPBool, 
+		{Src: typeOf(bool(false)), Dest: typeOf(bool(false))}:               CopyBoolToBool,
+		{Src: typeOfPointer(bool(false)), Dest: typeOf(bool(false))}:        CopyPBoolToBool,
+		{Src: typeOf(bool(false)), Dest: typeOfPointer(bool(false))}:        CopyBoolToPBool,
+		{Src: typeOfPointer(bool(false)), Dest: typeOfPointer(bool(false))}: CopyPBoolToPBool,
 		// complex64 to complex64
-		{Src: typeOf(complex64(0)), Dest: typeOf(complex64(0))}:    CopyComplex64ToComplex64,
-		{Src: typeOfPointer(complex64(0)), Dest: typeOf(complex64(0))}:    CopyPComplex64ToComplex64,
-		{Src: typeOf(complex64(0)), Dest: typeOfPointer(complex64(0))}:    CopyComplex64ToPComplex64,
-		{Src: typeOfPointer(complex64(0)), Dest: typeOfPointer(complex64(0))}:    CopyPComplex64ToPComplex64, 
+		{Src: typeOf(complex64(0)), Dest: typeOf(complex64(0))}:               CopyComplex64ToComplex64,
+		{Src: typeOfPointer(complex64(0)), Dest: typeOf(complex64(0))}:        CopyPComplex64ToComplex64,
+		{Src: typeOf(complex64(0)), Dest: typeOfPointer(complex64(0))}:        CopyComplex64ToPComplex64,
+		{Src: typeOfPointer(complex64(0)), Dest: typeOfPointer(complex64(0))}: CopyPComplex64ToPComplex64,
 		// complex128 to complex64
-		{Src: typeOf(complex128(0)), Dest: typeOf(complex64(0))}:    CopyComplex128ToComplex64,
-		{Src: typeOfPointer(complex128(0)), Dest: typeOf(complex64(0))}:    CopyPComplex128ToComplex64,
-		{Src: typeOf(complex128(0)), Dest: typeOfPointer(complex64(0))}:    CopyComplex128ToPComplex64,
-		{Src: typeOfPointer(complex128(0)), Dest: typeOfPointer(complex64(0))}:    CopyPComplex128ToPComplex64, 
+		{Src: typeOf(complex128(0)), Dest: typeOf(complex64(0))}:               CopyComplex128ToComplex64,
+		{Src: typeOfPointer(complex128(0)), Dest: typeOf(complex64(0))}:        CopyPComplex128ToComplex64,
+		{Src: typeOf(complex128(0)), Dest: typeOfPointer(complex64(0))}:        CopyComplex128ToPComplex64,
+		{Src: typeOfPointer(complex128(0)), Dest: typeOfPointer(complex64(0))}: CopyPComplex128ToPComplex64,
 		// complex64 to complex128
-		{Src: typeOf(complex64(0)), Dest: typeOf(complex128(0))}:    CopyComplex64ToComplex128,
-		{Src: typeOfPointer(complex64(0)), Dest: typeOf(complex128(0))}:    CopyPComplex64ToComplex128,
-		{Src: typeOf(complex64(0)), Dest: typeOfPointer(complex128(0))}:    CopyComplex64ToPComplex128,
-		{Src: typeOfPointer(complex64(0)), Dest: typeOfPointer(complex128(0))}:    CopyPComplex64ToPComplex128, 
+		{Src: typeOf(complex64(0)), Dest: typeOf(complex128(0))}:               CopyComplex64ToComplex128,
+		{Src: typeOfPointer(complex64(0)), Dest: typeOf(complex128(0))}:        CopyPComplex64ToComplex128,
+		{Src: typeOf(complex64(0)), Dest: typeOfPointer(complex128(0))}:        CopyComplex64ToPComplex128,
+		{Src: typeOfPointer(complex64(0)), Dest: typeOfPointer(complex128(0))}: CopyPComplex64ToPComplex128,
 		// complex128 to complex128
-		{Src: typeOf(complex128(0)), Dest: typeOf(complex128(0))}:    CopyComplex128ToComplex128,
-		{Src: typeOfPointer(complex128(0)), Dest: typeOf(complex128(0))}:    CopyPComplex128ToComplex128,
-		{Src: typeOf(complex128(0)), Dest: typeOfPointer(complex128(0))}:    CopyComplex128ToPComplex128,
-		{Src: typeOfPointer(complex128(0)), Dest: typeOfPointer(complex128(0))}:    CopyPComplex128ToPComplex128, 
+		{Src: typeOf(complex128(0)), Dest: typeOf(complex128(0))}:               CopyComplex128ToComplex128,
+		{Src: typeOfPointer(complex128(0)), Dest: typeOf(complex128(0))}:        CopyPComplex128ToComplex128,
+		{Src: typeOf(complex128(0)), Dest: typeOfPointer(complex128(0))}:        CopyComplex128ToPComplex128,
+		{Src: typeOfPointer(complex128(0)), Dest: typeOfPointer(complex128(0))}: CopyPComplex128ToPComplex128,
 		// string to string
-		{Src: typeOf(string("")), Dest: typeOf(string(""))}:    CopyStringToString,
-		{Src: typeOfPointer(string("")), Dest: typeOf(string(""))}:    CopyPStringToString,
-		{Src: typeOf(string("")), Dest: typeOfPointer(string(""))}:    CopyStringToPString,
-		{Src: typeOfPointer(string("")), Dest: typeOfPointer(string(""))}:    CopyPStringToPString, 
+		{Src: typeOf(string("")), Dest: typeOf(string(""))}:               CopyStringToString,
+		{Src: typeOfPointer(string("")), Dest: typeOf(string(""))}:        CopyPStringToString,
+		{Src: typeOf(string("")), Dest: typeOfPointer(string(""))}:        CopyStringToPString,
+		{Src: typeOfPointer(string("")), Dest: typeOfPointer(string(""))}: CopyPStringToPString,
 		// []byte to string
-		{Src: typeOf([]byte(nil)), Dest: typeOf(string(""))}:    CopyBytesToString,
-		{Src: typeOfPointer([]byte(nil)), Dest: typeOf(string(""))}:    CopyPBytesToString,
-		{Src: typeOf([]byte(nil)), Dest: typeOfPointer(string(""))}:    CopyBytesToPString,
-		{Src: typeOfPointer([]byte(nil)), Dest: typeOfPointer(string(""))}:    CopyPBytesToPString, 
+		{Src: typeOf([]byte(nil)), Dest: typeOf(string(""))}:               CopyBytesToString,
+		{Src: typeOfPointer([]byte(nil)), Dest: typeOf(string(""))}:        CopyPBytesToString,
+		{Src: typeOf([]byte(nil)), Dest: typeOfPointer(string(""))}:        CopyBytesToPString,
+		{Src: typeOfPointer([]byte(nil)), Dest: typeOfPointer(string(""))}: CopyPBytesToPString,
 		// string to []byte
-		{Src: typeOf(string("")), Dest: typeOf([]byte(nil))}:    CopyStringToBytes,
-		{Src: typeOfPointer(string("")), Dest: typeOf([]byte(nil))}:    CopyPStringToBytes,
-		{Src: typeOf(string("")), Dest: typeOfPointer([]byte(nil))}:    CopyStringToPBytes,
-		{Src: typeOfPointer(string("")), Dest: typeOfPointer([]byte(nil))}:    CopyPStringToPBytes, 
+		{Src: typeOf(string("")), Dest: typeOf([]byte(nil))}:               CopyStringToBytes,
+		{Src: typeOfPointer(string("")), Dest: typeOf([]byte(nil))}:        CopyPStringToBytes,
+		{Src: typeOf(string("")), Dest: typeOfPointer([]byte(nil))}:        CopyStringToPBytes,
+		{Src: typeOfPointer(string("")), Dest: typeOfPointer([]byte(nil))}: CopyPStringToPBytes,
 		// []byte to []byte
-		{Src: typeOf([]byte(nil)), Dest: typeOf([]byte(nil))}:    CopyBytesToBytes,
-		{Src: typeOfPointer([]byte(nil)), Dest: typeOf([]byte(nil))}:    CopyPBytesToBytes,
-		{Src: typeOf([]byte(nil)), Dest: typeOfPointer([]byte(nil))}:    CopyBytesToPBytes,
-		{Src: typeOfPointer([]byte(nil)), Dest: typeOfPointer([]byte(nil))}:    CopyPBytesToPBytes, 
+		{Src: typeOf([]byte(nil)), Dest: typeOf([]byte(nil))}:               CopyBytesToBytes,
+		{Src: typeOfPointer([]byte(nil)), Dest: typeOf([]byte(nil))}:        CopyPBytesToBytes,
+		{Src: typeOf([]byte(nil)), Dest: typeOfPointer([]byte(nil))}:        CopyBytesToPBytes,
+		{Src: typeOfPointer([]byte(nil)), Dest: typeOfPointer([]byte(nil))}: CopyPBytesToPBytes,
 		// time.Time to time.Time
-		{Src: typeOf(time.Time(time.Time{})), Dest: typeOf(time.Time(time.Time{}))}:    CopyTimeToTime,
-		{Src: typeOfPointer(time.Time(time.Time{})), Dest: typeOf(time.Time(time.Time{}))}:    CopyPTimeToTime,
-		{Src: typeOf(time.Time(time.Time{})), Dest: typeOfPointer(time.Time(time.Time{}))}:    CopyTimeToPTime,
-		{Src: typeOfPointer(time.Time(time.Time{})), Dest: typeOfPointer(time.Time(time.Time{}))}:    CopyPTimeToPTime, 
+		{Src: typeOf(time.Time(time.Time{})), Dest: typeOf(time.Time(time.Time{}))}:               CopyTimeToTime,
+		{Src: typeOfPointer(time.Time(time.Time{})), Dest: typeOf(time.Time(time.Time{}))}:        CopyPTimeToTime,
+		{Src: typeOf(time.Time(time.Time{})), Dest: typeOfPointer(time.Time(time.Time{}))}:        CopyTimeToPTime,
+		{Src: typeOfPointer(time.Time(time.Time{})), Dest: typeOfPointer(time.Time(time.Time{}))}: CopyPTimeToPTime,
 		// time.Duration to time.Duration
-		{Src: typeOf(time.Duration(0)), Dest: typeOf(time.Duration(0))}:    CopyDurationToDuration,
-		{Src: typeOfPointer(time.Duration(0)), Dest: typeOf(time.Duration(0))}:    CopyPDurationToDuration,
-		{Src: typeOf(time.Duration(0)), Dest: typeOfPointer(time.Duration(0))}:    CopyDurationToPDuration,
-		{Src: typeOfPointer(time.Duration(0)), Dest: typeOfPointer(time.Duration(0))}:    CopyPDurationToPDuration,	
+		{Src: typeOf(time.Duration(0)), Dest: typeOf(time.Duration(0))}:               CopyDurationToDuration,
+		{Src: typeOfPointer(time.Duration(0)), Dest: typeOf(time.Duration(0))}:        CopyPDurationToDuration,
+		{Src: typeOf(time.Duration(0)), Dest: typeOfPointer(time.Duration(0))}:        CopyDurationToPDuration,
+		{Src: typeOfPointer(time.Duration(0)), Dest: typeOfPointer(time.Duration(0))}: CopyPDurationToPDuration,
 	},
 	sizes: []func(dst, src unsafe.Pointer){
-		Copy1,Copy2,Copy3,Copy4,Copy5,Copy6,Copy7,Copy8,Copy9,Copy10,Copy11,Copy12,Copy13,Copy14,Copy15,Copy16,Copy17,Copy18,Copy19,Copy20,Copy21,Copy22,Copy23,Copy24,Copy25,Copy26,Copy27,Copy28,Copy29,Copy30,Copy31,Copy32,Copy33,Copy34,Copy35,Copy36,Copy37,Copy38,Copy39,Copy40,Copy41,Copy42,Copy43,Copy44,Copy45,Copy46,Copy47,Copy48,Copy49,Copy50,Copy51,Copy52,Copy53,Copy54,Copy55,Copy56,Copy57,Copy58,Copy59,Copy60,Copy61,Copy62,Copy63,Copy64,Copy65,Copy66,Copy67,Copy68,Copy69,Copy70,Copy71,Copy72,Copy73,Copy74,Copy75,Copy76,Copy77,Copy78,Copy79,Copy80,Copy81,Copy82,Copy83,Copy84,Copy85,Copy86,Copy87,Copy88,Copy89,Copy90,Copy91,Copy92,Copy93,Copy94,Copy95,Copy96,Copy97,Copy98,Copy99,Copy100,Copy101,Copy102,Copy103,Copy104,Copy105,Copy106,Copy107,Copy108,Copy109,Copy110,Copy111,Copy112,Copy113,Copy114,Copy115,Copy116,Copy117,Copy118,Copy119,Copy120,Copy121,Copy122,Copy123,Copy124,Copy125,Copy126,Copy127,Copy128,Copy129,Copy130,Copy131,Copy132,Copy133,Copy134,Copy135,Copy136,Copy137,Copy138,Copy139,Copy140,Copy141,Copy142,Copy143,Copy144,Copy145,Copy146,Copy147,Copy148,Copy149,Copy150,Copy151,Copy152,Copy153,Copy154,Copy155,Copy156,Copy157,Copy158,Copy159,Copy160,Copy161,Copy162,Copy163,Copy164,Copy165,Copy166,Copy167,Copy168,Copy169,Copy170,Copy171,Copy172,Copy173,Copy174,Copy175,Copy176,Copy177,Copy178,Copy179,Copy180,Copy181,Copy182,Copy183,Copy184,Copy185,Copy186,Copy187,Copy188,Copy189,Copy190,Copy191,Copy192,Copy193,Copy194,Copy195,Copy196,Copy197,Copy198,Copy199,Copy200,Copy201,Copy202,Copy203,Copy204,Copy205,Copy206,Copy207,Copy208,Copy209,Copy210,Copy211,Copy212,Copy213,Copy214,Copy215,Copy216,Copy217,Copy218,Copy219,Copy220,Copy221,Copy222,Copy223,Copy224,Copy225,Copy226,Copy227,Copy228,Copy229,Copy230,Copy231,Copy232,Copy233,Copy234,Copy235,Copy236,Copy237,Copy238,Copy239,Copy240,Copy241,Copy242,Copy243,Copy244,Copy245,Copy246,Copy247,Copy248,Copy249,Copy250,Copy251,Copy252,Copy253,Copy254,Copy255, 
+		Copy1, Copy2, Copy3, Copy4, Copy5, Copy6, Copy7, Copy8, Copy9, Copy10, Copy11, Copy12, Copy13, Copy14, Copy15, Copy16, Copy17, Copy18, Copy19, Copy20, Copy21, Copy22, Copy23, Copy24, Copy25, Copy26, Copy27, Copy28, Copy29, Copy30, Copy31, Copy32, Copy33, Copy34, Copy35, Copy36, Copy37, Copy38, Copy39, Copy40, Copy41, Copy42, Copy43, Copy44, Copy45, Copy46, Copy47, Copy48, Copy49, Copy50, Copy51, Copy52, Copy53, Copy54, Copy55, Copy56, Copy57, Copy58, Copy59, Copy60, Copy61, Copy62, Copy63, Copy64, Copy65, Copy66, Copy67, Copy68, Copy69, Copy70, Copy71, Copy72, Copy73, Copy74, Copy75, Copy76, Copy77, Copy78, Copy79, Copy80, Copy81, Copy82, Copy83, Copy84, Copy85, Copy86, Copy87, Copy88, Copy89, Copy90, Copy91, Copy92, Copy93, Copy94, Copy95, Copy96, Copy97, Copy98, Copy99, Copy100, Copy101, Copy102, Copy103, Copy104, Copy105, Copy106, Copy107, Copy108, Copy109, Copy110, Copy111, Copy112, Copy113, Copy114, Copy115, Copy116, Copy117, Copy118, Copy119, Copy120, Copy121, Copy122, Copy123, Copy124, Copy125, Copy126, Copy127, Copy128, Copy129, Copy130, Copy131, Copy132, Copy133, Copy134, Copy135, Copy136, Copy137, Copy138, Copy139, Copy140, Copy141, Copy142, Copy143, Copy144, Copy145, Copy146, Copy147, Copy148, Copy149, Copy150, Copy151, Copy152, Copy153, Copy154, Copy155, Copy156, Copy157, Copy158, Copy159, Copy160, Copy161, Copy162, Copy163, Copy164, Copy165, Copy166, Copy167, Copy168, Copy169, Copy170, Copy171, Copy172, Copy173, Copy174, Copy175, Copy176, Copy177, Copy178, Copy179, Copy180, Copy181, Copy182, Copy183, Copy184, Copy185, Copy186, Copy187, Copy188, Copy189, Copy190, Copy191, Copy192, Copy193, Copy194, Copy195, Copy196, Copy197, Copy198, Copy199, Copy200, Copy201, Copy202, Copy203, Copy204, Copy205, Copy206, Copy207, Copy208, Copy209, Copy210, Copy211, Copy212, Copy213, Copy214, Copy215, Copy216, Copy217, Copy218, Copy219, Copy220, Copy221, Copy222, Copy223, Copy224, Copy225, Copy226, Copy227, Copy228, Copy229, Copy230, Copy231, Copy232, Copy233, Copy234, Copy235, Copy236, Copy237, Copy238, Copy239, Copy240, Copy241, Copy242, Copy243, Copy244, Copy245, Copy246, Copy247, Copy248, Copy249, Copy250, Copy251, Copy252, Copy253, Copy254, Copy255,
 	},
 }
- 
 
 // int to int
 
@@ -687,7 +685,7 @@ func CopyPIntToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to int
 
@@ -725,7 +723,7 @@ func CopyPInt8ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to int
 
@@ -763,7 +761,7 @@ func CopyPInt16ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to int
 
@@ -801,7 +799,7 @@ func CopyPInt32ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to int
 
@@ -839,7 +837,7 @@ func CopyPInt64ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to int
 
@@ -877,7 +875,7 @@ func CopyPUintToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to int
 
@@ -915,7 +913,7 @@ func CopyPUint8ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to int
 
@@ -953,7 +951,7 @@ func CopyPUint16ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to int
 
@@ -991,7 +989,7 @@ func CopyPUint32ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to int
 
@@ -1029,7 +1027,7 @@ func CopyPUint64ToPInt(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to int8
 
@@ -1067,7 +1065,7 @@ func CopyPIntToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to int8
 
@@ -1105,7 +1103,7 @@ func CopyPInt8ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to int8
 
@@ -1143,7 +1141,7 @@ func CopyPInt16ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to int8
 
@@ -1181,7 +1179,7 @@ func CopyPInt32ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to int8
 
@@ -1219,7 +1217,7 @@ func CopyPInt64ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to int8
 
@@ -1257,7 +1255,7 @@ func CopyPUintToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to int8
 
@@ -1295,7 +1293,7 @@ func CopyPUint8ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to int8
 
@@ -1333,7 +1331,7 @@ func CopyPUint16ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to int8
 
@@ -1371,7 +1369,7 @@ func CopyPUint32ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to int8
 
@@ -1409,7 +1407,7 @@ func CopyPUint64ToPInt8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to int16
 
@@ -1447,7 +1445,7 @@ func CopyPIntToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to int16
 
@@ -1485,7 +1483,7 @@ func CopyPInt8ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to int16
 
@@ -1523,7 +1521,7 @@ func CopyPInt16ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to int16
 
@@ -1561,7 +1559,7 @@ func CopyPInt32ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to int16
 
@@ -1599,7 +1597,7 @@ func CopyPInt64ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to int16
 
@@ -1637,7 +1635,7 @@ func CopyPUintToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to int16
 
@@ -1675,7 +1673,7 @@ func CopyPUint8ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to int16
 
@@ -1713,7 +1711,7 @@ func CopyPUint16ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to int16
 
@@ -1751,7 +1749,7 @@ func CopyPUint32ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to int16
 
@@ -1789,7 +1787,7 @@ func CopyPUint64ToPInt16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to int32
 
@@ -1827,7 +1825,7 @@ func CopyPIntToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to int32
 
@@ -1865,7 +1863,7 @@ func CopyPInt8ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to int32
 
@@ -1903,7 +1901,7 @@ func CopyPInt16ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to int32
 
@@ -1941,7 +1939,7 @@ func CopyPInt32ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to int32
 
@@ -1979,7 +1977,7 @@ func CopyPInt64ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to int32
 
@@ -2017,7 +2015,7 @@ func CopyPUintToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to int32
 
@@ -2055,7 +2053,7 @@ func CopyPUint8ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to int32
 
@@ -2093,7 +2091,7 @@ func CopyPUint16ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to int32
 
@@ -2131,7 +2129,7 @@ func CopyPUint32ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to int32
 
@@ -2169,7 +2167,7 @@ func CopyPUint64ToPInt32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to int64
 
@@ -2207,7 +2205,7 @@ func CopyPIntToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to int64
 
@@ -2245,7 +2243,7 @@ func CopyPInt8ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to int64
 
@@ -2283,7 +2281,7 @@ func CopyPInt16ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to int64
 
@@ -2321,7 +2319,7 @@ func CopyPInt32ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to int64
 
@@ -2359,7 +2357,7 @@ func CopyPInt64ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to int64
 
@@ -2397,7 +2395,7 @@ func CopyPUintToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to int64
 
@@ -2435,7 +2433,7 @@ func CopyPUint8ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to int64
 
@@ -2473,7 +2471,7 @@ func CopyPUint16ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to int64
 
@@ -2511,7 +2509,7 @@ func CopyPUint32ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to int64
 
@@ -2549,7 +2547,7 @@ func CopyPUint64ToPInt64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to uint
 
@@ -2587,7 +2585,7 @@ func CopyPIntToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to uint
 
@@ -2625,7 +2623,7 @@ func CopyPInt8ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to uint
 
@@ -2663,7 +2661,7 @@ func CopyPInt16ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to uint
 
@@ -2701,7 +2699,7 @@ func CopyPInt32ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to uint
 
@@ -2739,7 +2737,7 @@ func CopyPInt64ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to uint
 
@@ -2777,7 +2775,7 @@ func CopyPUintToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to uint
 
@@ -2815,7 +2813,7 @@ func CopyPUint8ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to uint
 
@@ -2853,7 +2851,7 @@ func CopyPUint16ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to uint
 
@@ -2891,7 +2889,7 @@ func CopyPUint32ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to uint
 
@@ -2929,7 +2927,7 @@ func CopyPUint64ToPUint(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to uint8
 
@@ -2967,7 +2965,7 @@ func CopyPIntToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to uint8
 
@@ -3005,7 +3003,7 @@ func CopyPInt8ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to uint8
 
@@ -3043,7 +3041,7 @@ func CopyPInt16ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to uint8
 
@@ -3081,7 +3079,7 @@ func CopyPInt32ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to uint8
 
@@ -3119,7 +3117,7 @@ func CopyPInt64ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to uint8
 
@@ -3157,7 +3155,7 @@ func CopyPUintToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to uint8
 
@@ -3195,7 +3193,7 @@ func CopyPUint8ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to uint8
 
@@ -3233,7 +3231,7 @@ func CopyPUint16ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to uint8
 
@@ -3271,7 +3269,7 @@ func CopyPUint32ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to uint8
 
@@ -3309,7 +3307,7 @@ func CopyPUint64ToPUint8(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to uint16
 
@@ -3347,7 +3345,7 @@ func CopyPIntToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to uint16
 
@@ -3385,7 +3383,7 @@ func CopyPInt8ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to uint16
 
@@ -3423,7 +3421,7 @@ func CopyPInt16ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to uint16
 
@@ -3461,7 +3459,7 @@ func CopyPInt32ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to uint16
 
@@ -3499,7 +3497,7 @@ func CopyPInt64ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to uint16
 
@@ -3537,7 +3535,7 @@ func CopyPUintToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to uint16
 
@@ -3575,7 +3573,7 @@ func CopyPUint8ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to uint16
 
@@ -3613,7 +3611,7 @@ func CopyPUint16ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to uint16
 
@@ -3651,7 +3649,7 @@ func CopyPUint32ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to uint16
 
@@ -3689,7 +3687,7 @@ func CopyPUint64ToPUint16(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to uint32
 
@@ -3727,7 +3725,7 @@ func CopyPIntToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to uint32
 
@@ -3765,7 +3763,7 @@ func CopyPInt8ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to uint32
 
@@ -3803,7 +3801,7 @@ func CopyPInt16ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to uint32
 
@@ -3841,7 +3839,7 @@ func CopyPInt32ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to uint32
 
@@ -3879,7 +3877,7 @@ func CopyPInt64ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to uint32
 
@@ -3917,7 +3915,7 @@ func CopyPUintToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to uint32
 
@@ -3955,7 +3953,7 @@ func CopyPUint8ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to uint32
 
@@ -3993,7 +3991,7 @@ func CopyPUint16ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to uint32
 
@@ -4031,7 +4029,7 @@ func CopyPUint32ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to uint32
 
@@ -4069,7 +4067,7 @@ func CopyPUint64ToPUint32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int to uint64
 
@@ -4107,7 +4105,7 @@ func CopyPIntToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int8 to uint64
 
@@ -4145,7 +4143,7 @@ func CopyPInt8ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int16 to uint64
 
@@ -4183,7 +4181,7 @@ func CopyPInt16ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int32 to uint64
 
@@ -4221,7 +4219,7 @@ func CopyPInt32ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // int64 to uint64
 
@@ -4259,7 +4257,7 @@ func CopyPInt64ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint to uint64
 
@@ -4297,7 +4295,7 @@ func CopyPUintToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint8 to uint64
 
@@ -4335,7 +4333,7 @@ func CopyPUint8ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint16 to uint64
 
@@ -4373,7 +4371,7 @@ func CopyPUint16ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint32 to uint64
 
@@ -4411,7 +4409,7 @@ func CopyPUint32ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // uint64 to uint64
 
@@ -4449,7 +4447,7 @@ func CopyPUint64ToPUint64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // float32 to float32
 
@@ -4487,7 +4485,7 @@ func CopyPFloat32ToPFloat32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // float64 to float32
 
@@ -4525,7 +4523,7 @@ func CopyPFloat64ToPFloat32(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // float32 to float64
 
@@ -4563,7 +4561,7 @@ func CopyPFloat32ToPFloat64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // float64 to float64
 
@@ -4601,7 +4599,7 @@ func CopyPFloat64ToPFloat64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // bool to bool
 
@@ -4639,7 +4637,7 @@ func CopyPBoolToPBool(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // complex64 to complex64
 
@@ -4677,7 +4675,7 @@ func CopyPComplex64ToPComplex64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // complex128 to complex64
 
@@ -4715,7 +4713,7 @@ func CopyPComplex128ToPComplex64(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // complex64 to complex128
 
@@ -4753,7 +4751,7 @@ func CopyPComplex64ToPComplex128(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // complex128 to complex128
 
@@ -4791,7 +4789,7 @@ func CopyPComplex128ToPComplex128(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // string to string
 
@@ -4829,7 +4827,7 @@ func CopyPStringToPString(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // []byte to string
 
@@ -4867,7 +4865,7 @@ func CopyPBytesToPString(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // string to []byte
 
@@ -4905,7 +4903,7 @@ func CopyPStringToPBytes(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // []byte to []byte
 
@@ -4943,7 +4941,7 @@ func CopyPBytesToPBytes(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // time.Time to time.Time
 
@@ -4981,7 +4979,7 @@ func CopyPTimeToPTime(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-} 
+}
 
 // time.Duration to time.Duration
 
@@ -5019,7 +5017,7 @@ func CopyPDurationToPDuration(dst, src unsafe.Pointer) {
 		return
 	}
 	*p = &v
-}	
+}
 
 // Memcopy funcs
 func Copy1(dst, src unsafe.Pointer) {
@@ -6041,5 +6039,3 @@ func Copy254(dst, src unsafe.Pointer) {
 func Copy255(dst, src unsafe.Pointer) {
 	*(*[255]byte)(unsafe.Pointer(dst)) = *(*[255]byte)(unsafe.Pointer(src))
 }
- 
-
