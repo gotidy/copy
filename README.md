@@ -2,7 +2,7 @@
 
 [![GoDev](https://img.shields.io/static/v1?label=godev&message=reference&color=00add8)][godev] [![Go Report Card][goreport]][goreport]
 
-[godev]: https://pkg.go.dev/github.com/google/go-cmp/cmp
+[godev]: https://pkg.go.dev/github.com/gotidy/copy
 [goreport]: https://goreportcard.com/badge/github.com/gotidy/copy
 
 This package is meant to make copying of structs to/from others structs a bit easier.
