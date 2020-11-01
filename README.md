@@ -16,39 +16,45 @@ go get -u github.com/gotidy/copy
 ## Example
 
 ```go
-type User struct {
-    Name string
+type Person struct {
+    Name       string
     MiddleName *string
-    Surname string
-    Email  string
-    Age int
-    Married  bool
+    Surname    string
+}
+
+type User struct {
+    Person
+    Email   string
+    Age     int8
+    Married bool
 }
 
 type Employee struct {
-    Name string
+    Name       string
     MiddleName string
-    Surname string
-    Email  string
-    Age int
+    Surname    string
+    Email      string
+    Age        int
 }
 
 src := User{
-    Name:  "John",
-    MiddleName: nil,
-    Surname: "Smith",
-    Email:"john.smith@joy.me",
-    Age: 33,
+    Person: Person{
+        Name:       "John",
+        MiddleName: nil,
+        Surname:    "Smith",
+    },
+    Email:   "john.smith@joy.me",
+    Age:     33,
     Married: false,
 }
 dst := Employee{}
 
-copiers := New() // New("json")
+copiers := copy.New() // New("json")
 copiers.Copy(&dst, &src)
 
 // Or more fast use case is to create the type specific copier.
 
-copier := copiers.Get(&dst, &src)
+copier := copiers.Get(&Employee{}, &User{}) // Created once for a pair of types.
 copier.Copy(&dst, &src)
 
 ```
