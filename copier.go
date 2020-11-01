@@ -10,7 +10,7 @@ import (
 	"github.com/gotidy/copy/funcs"
 )
 
-const defaultTagName = "copy"
+const DefaultTagName = "copy"
 
 type copierKey struct {
 	Src  reflect.Type
@@ -18,22 +18,22 @@ type copierKey struct {
 }
 
 type Options struct {
-	Tag   string
-	Panic bool
+	Tag  string
+	Skip bool
 }
 
 type Option func(c *Options)
 
-func WithTag(tag string) Option {
+func Tag(tag string) Option {
 	return func(o *Options) {
 		o.Tag = tag
 	}
 }
 
 // panic on nonassignable types
-func WithPanic() Option {
+func Skip() Option {
 	return func(o *Options) {
-		o.Panic = true
+		o.Skip = true
 	}
 }
 
@@ -84,7 +84,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
-	if c.options.Panic {
+	if !c.options.Skip {
 		panic(fmt.Errorf(`field "%s" of type %s is not assignable to field %s of type %s`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
 	}
 	return nil
@@ -132,7 +132,7 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 	for i := 0; i < srcStruct.NumField(); i++ {
 		srcField := srcStruct.Field(i)
 		if dstField, ok := dstStruct.FieldByName(srcField.Name); ok {
-			if f := c.fieldCopier(srcField, dstField); f != nil {
+			if f := c.fieldCopier(dstField, srcField); f != nil {
 				copier.copiers = append(copier.copiers, f)
 			}
 		}
@@ -191,7 +191,7 @@ func (c Copier) copy(dst, src unsafe.Pointer) {
 	}
 }
 
-var DefaultCopier = New(WithTag(defaultTagName))
+var DefaultCopier = New(Tag(DefaultTagName))
 
 // Prefetch caches structures of src and dst.  Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
