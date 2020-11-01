@@ -24,20 +24,21 @@ type Options struct {
 
 type Option func(c *Options)
 
+// Tag set tag name.
 func Tag(tag string) Option {
 	return func(o *Options) {
 		o.Tag = tag
 	}
 }
 
-// panic on nonassignable types
+// Skip nonassignable types else cause panic.
 func Skip() Option {
 	return func(o *Options) {
 		o.Skip = true
 	}
 }
 
-// Copiers is structs copier
+// Copiers is a structs copier
 type Copiers struct {
 	cache   *cache.Cache
 	options Options
@@ -90,11 +91,11 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 	return nil
 }
 
-// Prefetch caches structures of src and dst.  Dst and src each must be a pointer to struct.
+// Prepare caches structures of src and dst. Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
 //
-// c := copy.New("")
-// c.Prefetch(&dst, &src)
+//   c := copy.New("")
+//   c.Prepare(&dst, &src)
 func (c *Copiers) Prepare(dst, src interface{}) {
 	_ = c.Get(dst, src)
 }
@@ -143,6 +144,7 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 	return copier
 }
 
+// Get Copier for a specific destination and source.
 func (c *Copiers) Get(dst, src interface{}) Copier {
 	srcValue := reflect.ValueOf(src)
 	if srcValue.Kind() != reflect.Ptr {
@@ -158,6 +160,7 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 	return c.get(dstValue.Type(), srcValue.Type())
 }
 
+// Copier fills a destination from source.
 type Copier struct {
 	copiers []fieldCopier
 }
@@ -191,19 +194,25 @@ func (c Copier) copy(dst, src unsafe.Pointer) {
 	}
 }
 
+// DefaultCopier uses Copier with a "copy" tag.
 var DefaultCopier = New(Tag(DefaultTagName))
 
-// Prefetch caches structures of src and dst.  Dst and src each must be a pointer to struct.
+// Prepare caches structures of src and dst.  Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
 //
-// copy.Prefetch(&dst, &src)
+//   copy.Prepare(&dst, &src)
 func Prepare(dst, src interface{}) {
 	DefaultCopier.Prepare(src, dst)
 }
 
-// Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
+// Copy copies the contents of src into dst. Dst and src each must be a pointer to a struct.
 func Copy(dst, src interface{}) {
 	DefaultCopier.Copy(src, dst)
+}
+
+// Get Copier for a specific destination and source.
+func Get(dst, src interface{}) Copier {
+	return DefaultCopier.Get(src, dst)
 }
 
 // More safe and independent from internal structs
