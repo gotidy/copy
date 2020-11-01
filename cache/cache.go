@@ -32,8 +32,8 @@ func parseTag(tag string) (name string, omit bool) {
 
 func NewStructInfo(t reflect.Type, tagName string) Struct {
 	s := Struct{Fields: make([]Field, 0, t.NumField()), Names: make(map[string]Field, t.NumField())}
-	var traverse func(t reflect.Type, name string)
-	traverse = func(t reflect.Type, name string) {
+	var traverse func(t reflect.Type, name string, offset uintptr)
+	traverse = func(t reflect.Type, name string, offset uintptr) {
 		for i := 0; i < t.NumField(); i++ {
 			field := t.Field(i)
 			if field.PkgPath != "" {
@@ -42,7 +42,7 @@ func NewStructInfo(t reflect.Type, tagName string) Struct {
 			fi := Field{
 				Type:       field.Type,
 				Name:       field.Name,
-				Offset:     field.Offset,
+				Offset:     field.Offset + offset,
 				Anonymous:  field.Anonymous && field.Type.Kind() == reflect.Struct,
 				ParentName: name,
 			}
@@ -50,7 +50,6 @@ func NewStructInfo(t reflect.Type, tagName string) Struct {
 				if tag, ok := field.Tag.Lookup(tagName); ok {
 					s, omit := parseTag(tag)
 					if omit {
-						// fi.Use = false
 						continue
 					}
 					if s != "" {
@@ -61,11 +60,11 @@ func NewStructInfo(t reflect.Type, tagName string) Struct {
 			s.Fields = append(s.Fields, fi)
 			s.Names[fi.Name] = fi
 			if fi.Anonymous {
-				traverse(fi.Type, fi.Name+".")
+				traverse(fi.Type, fi.Name+".", fi.Offset)
 			}
 		}
 	}
-	traverse(t, "")
+	traverse(t, "", 0)
 	return s
 }
 
