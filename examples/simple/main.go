@@ -7,12 +7,14 @@ import (
 	"github.com/gotidy/copy"
 )
 
+// Person data.
 type Person struct {
 	Name       string
 	MiddleName *string
 	Surname    string
 }
 
+// User data.
 type User struct {
 	Person
 	Email   string
@@ -20,6 +22,7 @@ type User struct {
 	Married bool
 }
 
+// Employee data.
 type Employee struct {
 	Name       string
 	MiddleName string
@@ -44,6 +47,7 @@ func main() {
 	copiers := copy.New() // New("json")
 	copier := copiers.Get(&Employee{}, &User{})
 	copier.Copy(&dst, &src)
+
 	if data, err := json.MarshalIndent(dst, "", "    "); err == nil {
 		fmt.Println(string(data))
 	}

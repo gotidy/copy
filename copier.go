@@ -6,11 +6,11 @@ import (
 	"sync"
 	"unsafe"
 
-	"github.com/gotidy/copy/cache"
 	"github.com/gotidy/copy/funcs"
+	"github.com/gotidy/copy/internal/cache"
 )
 
-const DefaultTagName = "copy"
+const defaultTagName = "copy"
 
 type copierKey struct {
 	Src  reflect.Type
@@ -38,7 +38,7 @@ func Skip() Option {
 	}
 }
 
-// Copiers is a structs copier
+// Copiers is a structs copier.
 type Copiers struct {
 	cache   *cache.Cache
 	options Options
@@ -47,9 +47,10 @@ type Copiers struct {
 	copiers map[copierKey]Copier
 }
 
-// New create new Copier
+// New create new Copier.
 func New(options ...Option) *Copiers {
 	var opts Options
+
 	for _, option := range options {
 		option(&opts)
 	}
@@ -74,7 +75,6 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 			// src := reflect.NewAt(src.Type, unsafe.Pointer(uintptr(srcPtr)+src.Offset)).Elem()
 			// dst := reflect.NewAt(dst.Type, unsafe.Pointer(uintptr(dstPtr)+dst.Offset)).Elem()
 			// dst.Set(src)
-
 			memcopy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset), size)
 		}
 	}
@@ -94,7 +94,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 // Prepare caches structures of src and dst. Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
 //
-//   c := copy.New("")
+//   c := copy.New()
 //   c.Prepare(&dst, &src)
 func (c *Copiers) Prepare(dst, src interface{}) {
 	_ = c.Get(dst, src)
@@ -130,6 +130,7 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 
 	srcStruct := c.cache.GetByType(src)
 	dstStruct := c.cache.GetByType(dst)
+
 	for i := 0; i < srcStruct.NumField(); i++ {
 		srcField := srcStruct.Field(i)
 		if dstField, ok := dstStruct.FieldByName(srcField.Name); ok {
@@ -151,6 +152,7 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 		panic("source must be pointer to struct")
 	}
 	srcValue = srcValue.Elem()
+
 	dstValue := reflect.ValueOf(dst)
 	if dstValue.Kind() != reflect.Ptr {
 		panic("destination must be pointer to struct")
@@ -167,7 +169,6 @@ type Copier struct {
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
 func (c Copier) Copy(dst, src interface{}) {
-
 	// More safe and independent from internal structs
 	// srcValue := reflect.ValueOf(src)
 	// if srcValue.Kind() != reflect.Ptr {
@@ -181,7 +182,6 @@ func (c Copier) Copy(dst, src interface{}) {
 	// }
 	// dstPtr := unsafe.Pointer(dstValue.Pointer())
 	// dstValue = dstValue.Elem()
-
 	dstPtr := ifaceToPtr(dst)
 	srcPtr := ifaceToPtr(src)
 
@@ -194,25 +194,25 @@ func (c Copier) copy(dst, src unsafe.Pointer) {
 	}
 }
 
-// DefaultCopier uses Copier with a "copy" tag.
-var DefaultCopier = New(Tag(DefaultTagName))
+// defaultCopier uses Copier with a "copy" tag.
+var defaultCopier = New(Tag(defaultTagName))
 
 // Prepare caches structures of src and dst.  Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
 //
 //   copy.Prepare(&dst, &src)
 func Prepare(dst, src interface{}) {
-	DefaultCopier.Prepare(src, dst)
+	defaultCopier.Prepare(src, dst)
 }
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to a struct.
 func Copy(dst, src interface{}) {
-	DefaultCopier.Copy(src, dst)
+	defaultCopier.Copy(src, dst)
 }
 
 // Get Copier for a specific destination and source.
 func Get(dst, src interface{}) Copier {
-	return DefaultCopier.Get(src, dst)
+	return defaultCopier.Get(src, dst)
 }
 
 // More safe and independent from internal structs
@@ -221,22 +221,23 @@ func Get(dst, src interface{}) Copier {
 // 	if v.Kind() != reflect.Ptr {
 // 		panic("source must be pointer to struct")
 // 	}
-// 	return unsafe.Pointer(srcValue.Pointer())
+// 	return unsafe.Pointer(v.Pointer())
 // }
 
 func ifaceToPtr(i interface{}) unsafe.Pointer {
 	if i == nil {
 		panic("input parameter is nil")
 	}
+
 	type iface struct {
 		Type, Data unsafe.Pointer
 	}
-	return (*(*iface)(unsafe.Pointer(&i))).Data
+	return (*iface)(unsafe.Pointer(&i)).Data
 }
 
 func memcopy(dst, src unsafe.Pointer, size uintptr) {
 	copy(
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: int(size), Cap: int(size)})),
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: int(size), Cap: int(size)})),
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: int(size), Cap: int(size)})), //nolint
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: int(size), Cap: int(size)})), //nolint
 	)
 }

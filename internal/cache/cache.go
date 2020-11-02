@@ -7,6 +7,7 @@ import (
 	"sync"
 )
 
+// Field info.
 type Field struct {
 	Type       reflect.Type
 	Name       string
@@ -15,6 +16,7 @@ type Field struct {
 	ParentName string
 }
 
+// Struct fields info.
 type Struct struct {
 	Fields []Field
 	Names  map[string]Field
@@ -24,14 +26,18 @@ func parseTag(tag string) (name string, omit bool) {
 	if tag == "-" {
 		return "", true
 	}
+
 	if idx := strings.Index(tag, ","); idx != -1 {
 		return tag[:idx], false
 	}
+
 	return tag, false
 }
 
-func NewStructInfo(t reflect.Type, tagName string) Struct {
+// NewStruct inits the new struct info.
+func NewStruct(t reflect.Type, tagName string) Struct {
 	s := Struct{Fields: make([]Field, 0, t.NumField()), Names: make(map[string]Field, t.NumField())}
+
 	var traverse func(t reflect.Type, name string, offset uintptr)
 	traverse = func(t reflect.Type, name string, offset uintptr) {
 		for i := 0; i < t.NumField(); i++ {
@@ -39,6 +45,7 @@ func NewStructInfo(t reflect.Type, tagName string) Struct {
 			if field.PkgPath != "" {
 				continue
 			}
+
 			fi := Field{
 				Type:       field.Type,
 				Name:       field.Name,
@@ -46,25 +53,30 @@ func NewStructInfo(t reflect.Type, tagName string) Struct {
 				Anonymous:  field.Anonymous && field.Type.Kind() == reflect.Struct,
 				ParentName: name,
 			}
+
 			if tagName != "" {
 				if tag, ok := field.Tag.Lookup(tagName); ok {
 					s, omit := parseTag(tag)
 					if omit {
 						continue
 					}
+
 					if s != "" {
 						fi.Name = s
 					}
 				}
 			}
+
 			s.Fields = append(s.Fields, fi)
 			s.Names[fi.Name] = fi
+
 			if fi.Anonymous {
 				traverse(fi.Type, fi.Name+".", fi.Offset)
 			}
 		}
 	}
 	traverse(t, "", 0)
+
 	return s
 }
 
@@ -87,24 +99,29 @@ func (s Struct) NumField() int {
 	return len(s.Fields)
 }
 
+// Cache is structs' cache.
 type Cache struct {
 	mu      sync.RWMutex
 	tag     string
 	structs map[reflect.Type]Struct
 }
 
+// New creates structs Cache.
 func New(tagName string) *Cache {
 	return &Cache{tag: tagName, structs: make(map[reflect.Type]Struct)}
 }
 
+// Get returns struct fields info.
 func (c *Cache) Get(i interface{}) Struct {
 	t := reflect.TypeOf(i)
 	if t.Kind() == reflect.Ptr {
 		t = t.Elem()
 	}
+
 	return c.GetByType(t)
 }
 
+// GetByType returns struct fields info.
 func (c *Cache) GetByType(t reflect.Type) Struct {
 	c.mu.RLock()
 	s, ok := c.structs[t]
@@ -117,9 +134,10 @@ func (c *Cache) GetByType(t reflect.Type) Struct {
 		panic(fmt.Errorf("type %s is not struct", t))
 	}
 
-	s = NewStructInfo(t, c.tag)
+	s = NewStruct(t, c.tag)
 	c.mu.Lock()
 	c.structs[t] = s
 	c.mu.Unlock()
+
 	return s
 }

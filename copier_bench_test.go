@@ -38,6 +38,7 @@ func name(i int) string {
 func BenchmarkCopiers_____(b *testing.B) {
 	c := New()
 	c.Prepare(&dst, &src)
+
 	for _, repeat := range repeats {
 		b.Run(name(repeat), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
@@ -52,6 +53,7 @@ func BenchmarkCopiers_____(b *testing.B) {
 func BenchmarkCopier______(b *testing.B) {
 	c := New()
 	copier := c.Get(&dst, &src)
+
 	for _, repeat := range repeats {
 		b.Run(name(repeat), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
@@ -142,11 +144,12 @@ func BenchmarkFiledPointer(b *testing.B) {
 	dstOffset := vDest.Elem().Type().Field(0).Offset
 	// dstFieldType := vDest.Elem().Type().Field(0).Type
 	dstPtr := unsafe.Pointer(vDest.Pointer())
+
 	for i := 0; i < b.N; i++ {
-		memcopy(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset), size)
 		// src := reflect.NewAt(srcFieldType, unsafe.Pointer(uintptr(srcPtr)+srcOffset)).Elem()
 		// dst := reflect.NewAt(dstFieldType, unsafe.Pointer(uintptr(dstPtr)+dstOffset)).Elem()
 		// dst.Set(src)
+		memcopy(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset), size)
 	}
 }
 

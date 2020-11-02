@@ -15,7 +15,6 @@ func checkEqual(t *testing.T, actual, expected interface{}) {
 }
 
 func TestCopiers(t *testing.T) {
-
 	// var i int
 
 	type args struct {
@@ -145,14 +144,15 @@ func TestCopiers(t *testing.T) {
 		// bool
 		{name: "CopyBoolToBool", args: args{Src: ptr.Bool(true), Dest: ptr.Bool(false)}, want: true},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			srcPtr := reflect.ValueOf(tt.args.Src)
 			src := reflect.Indirect(srcPtr)
 			dstPtr := reflect.ValueOf(tt.args.Dest)
 			dst := reflect.Indirect(dstPtr)
-			copier := Get(src.Type(), dst.Type())
-			copier(unsafe.Pointer(srcPtr.Pointer()), unsafe.Pointer(dstPtr.Pointer()))
+			copier := Get(dst.Type(), src.Type())
+			copier(unsafe.Pointer(dstPtr.Pointer()), unsafe.Pointer(srcPtr.Pointer()))
 			checkEqual(t, dst.Interface(), tt.want)
 		})
 	}

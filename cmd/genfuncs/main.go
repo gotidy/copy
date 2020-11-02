@@ -8,11 +8,6 @@ import (
 	"text/template"
 )
 
-type Types struct {
-	zero string
-	list []string
-}
-
 var data = struct {
 	Types [][]string
 	Sizes []int
@@ -66,12 +61,14 @@ func typeOfPointer(v interface{}) reflect.Type {
 	return reflect.PtrTo(reflect.TypeOf(v))
 }
 
+// CopyFuncs is the storage of functions intended for copying data.
 type CopyFuncs struct {
 	mu    sync.RWMutex
 	funcs map[funcKey]func(dst, src unsafe.Pointer)
 	sizes []func(dst, src unsafe.Pointer)
 }
 
+// Get the copy function for the pair of types, if it is not found then nil is returned.
 func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	t.mu.RLock()
 	f := t.funcs[funcKey{Src: src, Dest: dst}]
@@ -79,14 +76,18 @@ func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	if f != nil {
 		return f
 	}
+
 	if dst.Kind() != src.Kind() {
 		return nil
 	}
+
 	if dst.Kind() == reflect.String {
 		// TODO
 		return nil
 	}
+
 	same := dst == src
+
 	switch dst.Kind() {
 	case reflect.Array, reflect.Chan, reflect.Map, reflect.Ptr, reflect.Slice:
 		same = same || dst.Elem() == src.Elem()
@@ -95,19 +96,23 @@ func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	if same && dst.Size() == src.Size() && src.Size() > 0 && src.Size() <= uintptr(len(t.sizes)) {
 		return t.sizes[src.Size()-1]
 	}
+
 	return nil
 }
 
+// Set the copy function for the pair of types.
 func (t *CopyFuncs) Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
 	t.mu.Lock()
 	t.funcs[funcKey{Src: src, Dest: dst}] = f
 	t.mu.Unlock()
 }
 
+// Get the copy function for the pair of types, if it is not found then nil is returned.
 func Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	return funcs.Get(dst, src)
 }
 
+// Set the copy function for the pair of types.
 func Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
 	funcs.Set(dst, src, f)
 }
@@ -179,17 +184,19 @@ func copy{{$size}}(dst, src unsafe.Pointer) {
 
 `
 
-func Title(s string) string {
+func title(s string) string {
 	if strings.HasPrefix(s, "[]") {
 		s = strings.TrimPrefix(s, "[]") + "s"
 	}
+
 	if parts := strings.Split(s, "."); len(parts) > 1 {
 		s = parts[len(parts)-1]
 	}
+
 	return strings.Title(s)
 }
 
-func Default(t string) string {
+func defaultValue(t string) string {
 	switch t {
 	case "bool":
 		return "false"
@@ -204,16 +211,16 @@ func Default(t string) string {
 	}
 }
 
-func Create(path string) *os.File {
+func createFile(path string) *os.File {
 	file, err := os.Create(path)
 	if err != nil {
 		log.Fatalf(`unable to open file "%s": %s`, path, err)
 	}
+
 	return file
 }
 
 func main() {
-
 	for i := 1; i < 256; i++ {
 		data.Sizes = append(data.Sizes, i)
 	}
@@ -221,13 +228,12 @@ func main() {
 	if len(os.Args) == 0 {
 		log.Fatal("unable to get executable path, args is empty")
 	}
-	root := filepath.Dir(filepath.Dir(os.Args[0]))
-	unsafeFile := Create(filepath.Join(root, "funcs", "funcs.go"))
-	defer unsafeFile.Close()
+
+	root := filepath.Dir(filepath.Dir(filepath.Dir(os.Args[0])))
 
 	funcMap := template.FuncMap{
-		"title":   Title,
-		"default": Default,
+		"title":   title,
+		"default": defaultValue,
 	}
 
 	tmpl, err := template.New("template").Funcs(funcMap).Parse(fileTemplate)
@@ -235,9 +241,11 @@ func main() {
 		log.Fatalf("parsing: %s", err)
 	}
 
+	unsafeFile := createFile(filepath.Join(root, "funcs", "funcs.go"))
+	defer unsafeFile.Close()
+
 	err = tmpl.Execute(unsafeFile, data)
 	if err != nil {
-		log.Fatalf("execution: %s", err)
+		log.Fatalf("execution: %s", err) //nolint
 	}
-
 }
