@@ -86,7 +86,7 @@ func BenchmarkJinzhuCopier(b *testing.B) {
 		b.Run(name(repeat), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
 				for i := 0; i < repeat; i++ {
-					copier.Copy(&dst, &src)
+					_ = copier.Copy(&dst, &src)
 				}
 			}
 		})

@@ -221,7 +221,7 @@ func createFile(path string) *os.File {
 }
 
 func main() {
-	for i := 1; i < 256; i++ {
+	for i := 1; i <= 256; i++ {
 		data.Sizes = append(data.Sizes, i)
 	}
 

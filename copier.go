@@ -72,7 +72,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
-	if src.Type.AssignableTo(dst.Type) {
+	if src.Type == dst.Type {
 		size := src.Type.Size()
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
@@ -93,7 +93,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 	}
 
 	if !c.options.Skip {
-		panic(fmt.Errorf(`field "%s" of type %s is not assignable to field %s of type %s`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
+		panic(fmt.Errorf(`field «%s» of type «%s» is not assignable to field «%s» of type «%s»`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
 	}
 
 	return nil
@@ -116,12 +116,19 @@ func (c *Copiers) Copy(dst, src interface{}) {
 	}
 	srcPtr := unsafe.Pointer(srcValue.Pointer())
 	srcValue = srcValue.Elem()
+	if srcValue.Kind() != reflect.Struct {
+		panic("source must be pointer to struct")
+	}
+
 	dstValue := reflect.ValueOf(dst)
 	if dstValue.Kind() != reflect.Ptr {
 		panic("destination must be pointer to struct")
 	}
 	dstPtr := unsafe.Pointer(dstValue.Pointer())
 	dstValue = dstValue.Elem()
+	if dstValue.Kind() != reflect.Struct {
+		panic("destination must be pointer to struct")
+	}
 
 	copier := c.get(dstValue.Type(), srcValue.Type())
 
@@ -156,17 +163,15 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 
 // Get Copier for a specific destination and source.
 func (c *Copiers) Get(dst, src interface{}) Copier {
-	srcValue := reflect.ValueOf(src)
-	if srcValue.Kind() != reflect.Ptr {
-		panic("source must be pointer to struct")
+	srcValue := reflect.Indirect(reflect.ValueOf(src))
+	if srcValue.Kind() != reflect.Struct {
+		panic("source must be struct")
 	}
-	srcValue = srcValue.Elem()
 
-	dstValue := reflect.ValueOf(dst)
-	if dstValue.Kind() != reflect.Ptr {
-		panic("destination must be pointer to struct")
+	dstValue := reflect.Indirect(reflect.ValueOf(dst))
+	if dstValue.Kind() != reflect.Struct {
+		panic("destination must be struct")
 	}
-	dstValue = dstValue.Elem()
 
 	return c.get(dstValue.Type(), srcValue.Type())
 }

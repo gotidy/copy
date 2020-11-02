@@ -22,16 +22,27 @@ type Struct struct {
 	Names  map[string]Field
 }
 
-func parseTag(tag string) (name string, omit bool) {
-	if tag == "-" {
-		return "", true
+type tagKind int
+
+const (
+	tagNormal = iota
+	tagOmit
+	tagEmbed
+)
+
+func parseTag(tag string) (name string, kind tagKind) {
+	switch tag {
+	case "-":
+		return "", tagOmit
+	case "+":
+		return "", tagEmbed
 	}
 
 	if idx := strings.Index(tag, ","); idx != -1 {
-		return tag[:idx], false
+		return tag[:idx], tagNormal
 	}
 
-	return tag, false
+	return tag, tagNormal
 }
 
 // NewStruct inits the new struct info.
@@ -56,9 +67,12 @@ func NewStruct(t reflect.Type, tagName string) Struct {
 
 			if tagName != "" {
 				if tag, ok := field.Tag.Lookup(tagName); ok {
-					s, omit := parseTag(tag)
-					if omit {
+					s, kind := parseTag(tag)
+					switch kind {
+					case tagOmit:
 						continue
+					case tagEmbed:
+						fi.Anonymous = field.Type.Kind() == reflect.Struct
 					}
 
 					if s != "" {
@@ -71,7 +85,7 @@ func NewStruct(t reflect.Type, tagName string) Struct {
 			s.Names[fi.Name] = fi
 
 			if fi.Anonymous {
-				traverse(fi.Type, fi.Name+".", fi.Offset)
+				traverse(fi.Type, fi.Name, fi.Offset)
 			}
 		}
 	}

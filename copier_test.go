@@ -92,9 +92,8 @@ func TestCopiers_Copy(t *testing.T) {
 	}
 	dst := testStruct2{}
 
-	c := New()
-	c.Prepare(&dst, &src)
-	c.Copy(&dst, &src)
+	Prepare(&dst, &src)
+	Copy(&dst, &src)
 	equal(t, dst, src)
 }
 
@@ -116,6 +115,7 @@ func TestCopier_Copy(t *testing.T) {
 		S  string
 		I  int
 		BB []bool
+		A  [500]byte
 		V  internal1
 	}
 
@@ -124,6 +124,7 @@ func TestCopier_Copy(t *testing.T) {
 		S  string
 		I  int
 		BB []bool
+		A  [500]byte
 		V  internal2
 	}
 
@@ -134,10 +135,135 @@ func TestCopier_Copy(t *testing.T) {
 		S:  "string",
 		I:  10,
 		BB: []bool{true, false},
+		A:  [500]byte{5},
 		V:  internal1{I: 5},
 	}
 	dst := testStruct2{}
 
 	New().Get(&dst, &src).Copy(&dst, &src)
 	equal(t, dst, src)
+}
+
+func TestCopier_Struct(t *testing.T) {
+	v := struct{}{}
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non struct source")
+			}
+		}()
+		Copy(&v, new(int))
+	}()
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non struct destination")
+			}
+		}()
+		Copy(new(int), &v)
+	}()
+
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non struct source")
+			}
+		}()
+		Get(&v, new(int))
+	}()
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non struct destination")
+			}
+		}()
+		Get(new(int), &v)
+	}()
+}
+
+func TestCopier_Pointer(t *testing.T) {
+	v := struct{}{}
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non pointer source")
+			}
+		}()
+		Copy(&v, v)
+	}()
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on non pointer destination")
+			}
+		}()
+		Copy(v, &v)
+	}()
+
+	c := New().Get(v, v)
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when source pointer is nil")
+			}
+		}()
+		c.Copy(&v, nil)
+	}()
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when destination pointer is nil")
+			}
+		}()
+		Copy(nil, &v)
+	}()
+}
+
+func TestCopier_Skip(t *testing.T) {
+	src := struct{ S string }{S: "string"}
+	dst := struct{ S int }{}
+
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic when fields with the same name are of different types")
+			}
+		}()
+		New().Get(dst, src)
+	}()
+
+	func() {
+		defer func() {
+			if err := recover(); err != nil {
+				t.Errorf("do not must panic with Skip option when fields with the same name are of different types: %s", err)
+			}
+		}()
+		New(Skip()).Get(dst, src)
+	}()
+}
+
+func TestCopier_Expand(t *testing.T) {
+	type Expanded struct {
+		E string
+	}
+
+	type testStruct1 struct {
+		Exp Expanded `copy:"+"`
+	}
+
+	type testStruct2 struct {
+		E string
+	}
+
+	src := testStruct1{
+		Exp: Expanded{
+			E: "Expanded",
+		},
+	}
+	dst := testStruct2{}
+
+	Get(dst, src).Copy(&dst, &src)
+	if src.Exp.E != dst.E {
+		t.Errorf("want «%s» got «%s»", src.Exp.E, dst.E)
+	}
 }
