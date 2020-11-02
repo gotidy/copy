@@ -17,11 +17,13 @@ type copierKey struct {
 	Dest reflect.Type
 }
 
+// Options is Copiers parameters.
 type Options struct {
 	Tag  string
 	Skip bool
 }
 
+// Option changes default Copiers parameters.
 type Option func(c *Options)
 
 // Tag set tag name.
@@ -54,6 +56,7 @@ func New(options ...Option) *Copiers {
 	for _, option := range options {
 		option(&opts)
 	}
+
 	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]Copier)}
 }
 
@@ -68,8 +71,10 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 			copier(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset))
 		}
 	}
+
 	if src.Type.AssignableTo(dst.Type) {
 		size := src.Type.Size()
+
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			// More safe and independent from internal structs
 			// src := reflect.NewAt(src.Type, unsafe.Pointer(uintptr(srcPtr)+src.Offset)).Elem()
@@ -78,8 +83,10 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 			memcopy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset), size)
 		}
 	}
+
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
 		copier := c.get(dst.Type, src.Type)
+
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
@@ -88,6 +95,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 	if !c.options.Skip {
 		panic(fmt.Errorf(`field "%s" of type %s is not assignable to field %s of type %s`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
 	}
+
 	return nil
 }
 
@@ -142,6 +150,7 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
 	c.mu.Unlock()
+
 	return copier
 }
 
@@ -232,6 +241,7 @@ func ifaceToPtr(i interface{}) unsafe.Pointer {
 	type iface struct {
 		Type, Data unsafe.Pointer
 	}
+
 	return (*iface)(unsafe.Pointer(&i)).Data
 }
 
