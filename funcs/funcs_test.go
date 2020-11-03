@@ -1,8 +1,11 @@
 package funcs
 
 import (
+	"bytes"
+	"crypto/rand"
 	"reflect"
 	"testing"
+	"time"
 	"unsafe"
 
 	"github.com/gotidy/ptr"
@@ -14,146 +17,132 @@ func checkEqual(t *testing.T, actual, expected interface{}) {
 	}
 }
 
-func TestCopiers(t *testing.T) {
-	// var i int
-
-	type args struct {
-		Src  interface{}
-		Dest interface{}
+func TestBytesCopiers(t *testing.T) {
+	src := make([]byte, 100)
+	_, err := rand.Read(src)
+	if err != nil {
+		t.Fatalf("rand: %s", err)
 	}
-	tests := []struct {
-		name string
-		args args
-		want interface{}
-	}{
-		// int
-		{name: "CopyIntToInt", args: args{Src: ptr.Int(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyInt8ToInt", args: args{Src: ptr.Int8(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyInt16ToInt", args: args{Src: ptr.Int16(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyInt32ToInt", args: args{Src: ptr.Int32(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyInt64ToInt", args: args{Src: ptr.Int64(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyUIntToInt", args: args{Src: ptr.UInt(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyUInt8ToInt", args: args{Src: ptr.UInt8(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyUInt16ToInt", args: args{Src: ptr.UInt16(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyUInt32ToInt", args: args{Src: ptr.UInt32(10), Dest: ptr.Int(0)}, want: int(10)},
-		{name: "CopyUInt64ToInt", args: args{Src: ptr.UInt64(10), Dest: ptr.Int(0)}, want: int(10)},
-		// int8
-		{name: "CopyIntToInt8", args: args{Src: ptr.Int(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyInt8ToInt8", args: args{Src: ptr.Int8(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyInt16ToInt8", args: args{Src: ptr.Int16(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyInt32ToInt8", args: args{Src: ptr.Int32(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyInt64ToInt8", args: args{Src: ptr.Int64(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyUIntToInt8", args: args{Src: ptr.UInt(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyUInt8ToInt8", args: args{Src: ptr.UInt8(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyUInt16ToInt8", args: args{Src: ptr.UInt16(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyUInt32ToInt8", args: args{Src: ptr.UInt32(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		{name: "CopyUInt64ToInt8", args: args{Src: ptr.UInt64(10), Dest: ptr.Int8(0)}, want: int8(10)},
-		// int16
-		{name: "CopyIntToInt16", args: args{Src: ptr.Int(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyInt8ToInt16", args: args{Src: ptr.Int8(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyInt16ToInt16", args: args{Src: ptr.Int16(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyInt32ToInt16", args: args{Src: ptr.Int32(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyInt64ToInt16", args: args{Src: ptr.Int64(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyUIntToInt16", args: args{Src: ptr.UInt(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyUInt8ToInt16", args: args{Src: ptr.UInt8(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyUInt16ToInt16", args: args{Src: ptr.UInt16(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyUInt32ToInt16", args: args{Src: ptr.UInt32(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		{name: "CopyUInt64ToInt16", args: args{Src: ptr.UInt64(10), Dest: ptr.Int16(0)}, want: int16(10)},
-		// int32
-		{name: "CopyIntToInt32", args: args{Src: ptr.Int(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyInt8ToInt32", args: args{Src: ptr.Int8(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyInt16ToInt32", args: args{Src: ptr.Int16(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyInt32ToInt32", args: args{Src: ptr.Int32(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyInt64ToInt32", args: args{Src: ptr.Int64(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyUIntToInt32", args: args{Src: ptr.UInt(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyUInt8ToInt32", args: args{Src: ptr.UInt8(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyUInt16ToInt32", args: args{Src: ptr.UInt16(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyUInt32ToInt32", args: args{Src: ptr.UInt32(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		{name: "CopyUInt64ToInt32", args: args{Src: ptr.UInt64(10), Dest: ptr.Int32(0)}, want: int32(10)},
-		// int64
-		{name: "CopyIntToInt64", args: args{Src: ptr.Int(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyInt8ToInt64", args: args{Src: ptr.Int8(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyInt16ToInt64", args: args{Src: ptr.Int16(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyInt32ToInt64", args: args{Src: ptr.Int32(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyInt64ToInt64", args: args{Src: ptr.Int64(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyUIntToInt64", args: args{Src: ptr.UInt(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyUInt8ToInt64", args: args{Src: ptr.UInt8(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyUInt16ToInt64", args: args{Src: ptr.UInt16(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyUInt32ToInt64", args: args{Src: ptr.UInt32(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		{name: "CopyUInt64ToInt64", args: args{Src: ptr.UInt64(10), Dest: ptr.Int64(0)}, want: int64(10)},
-		// uint
-		{name: "CopyIntToInt", args: args{Src: ptr.Int(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyInt8ToInt", args: args{Src: ptr.Int8(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyInt16ToInt", args: args{Src: ptr.Int16(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyInt32ToInt", args: args{Src: ptr.Int32(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyInt64ToInt", args: args{Src: ptr.Int64(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyUIntToInt", args: args{Src: ptr.UInt(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyUInt8ToInt", args: args{Src: ptr.UInt8(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyUInt16ToInt", args: args{Src: ptr.UInt16(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyUInt32ToInt", args: args{Src: ptr.UInt32(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		{name: "CopyUInt64ToInt", args: args{Src: ptr.UInt64(10), Dest: ptr.UInt(0)}, want: uint(10)},
-		// uint8
-		{name: "CopyIntToInt8", args: args{Src: ptr.Int(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyInt8ToInt8", args: args{Src: ptr.Int8(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyInt16ToInt8", args: args{Src: ptr.Int16(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyInt32ToInt8", args: args{Src: ptr.Int32(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyInt64ToInt8", args: args{Src: ptr.Int64(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyUIntToInt8", args: args{Src: ptr.UInt(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyUInt8ToInt8", args: args{Src: ptr.UInt8(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyUInt16ToInt8", args: args{Src: ptr.UInt16(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyUInt32ToInt8", args: args{Src: ptr.UInt32(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		{name: "CopyUInt64ToInt8", args: args{Src: ptr.UInt64(10), Dest: ptr.UInt8(0)}, want: uint8(10)},
-		// uint16
-		{name: "CopyIntToInt16", args: args{Src: ptr.Int(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyInt8ToInt16", args: args{Src: ptr.Int8(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyInt16ToInt16", args: args{Src: ptr.Int16(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyInt32ToInt16", args: args{Src: ptr.Int32(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyInt64ToInt16", args: args{Src: ptr.Int64(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyUIntToInt16", args: args{Src: ptr.UInt(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyUInt8ToInt16", args: args{Src: ptr.UInt8(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyUInt16ToInt16", args: args{Src: ptr.UInt16(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyUInt32ToInt16", args: args{Src: ptr.UInt32(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		{name: "CopyUInt64ToInt16", args: args{Src: ptr.UInt64(10), Dest: ptr.UInt16(0)}, want: uint16(10)},
-		// uint32
-		{name: "CopyIntToInt32", args: args{Src: ptr.Int(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyInt8ToInt32", args: args{Src: ptr.Int8(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyInt16ToInt32", args: args{Src: ptr.Int16(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyInt32ToInt32", args: args{Src: ptr.Int32(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyInt64ToInt32", args: args{Src: ptr.Int64(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyUIntToInt32", args: args{Src: ptr.UInt(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyUInt8ToInt32", args: args{Src: ptr.UInt8(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyUInt16ToInt32", args: args{Src: ptr.UInt16(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyUInt32ToInt32", args: args{Src: ptr.UInt32(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		{name: "CopyUInt64ToInt32", args: args{Src: ptr.UInt64(10), Dest: ptr.UInt32(0)}, want: uint32(10)},
-		// uint64
-		{name: "CopyIntToInt64", args: args{Src: ptr.Int(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyInt8ToInt64", args: args{Src: ptr.Int8(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyInt16ToInt64", args: args{Src: ptr.Int16(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyInt32ToInt64", args: args{Src: ptr.Int32(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyInt64ToInt64", args: args{Src: ptr.Int64(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyUIntToInt64", args: args{Src: ptr.UInt(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyUInt8ToInt64", args: args{Src: ptr.UInt8(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyUInt16ToInt64", args: args{Src: ptr.UInt16(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyUInt32ToInt64", args: args{Src: ptr.UInt32(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		{name: "CopyUInt64ToInt64", args: args{Src: ptr.UInt64(10), Dest: ptr.UInt64(0)}, want: uint64(10)},
-		// float
-		{name: "CopyFloat32ToFloat64", args: args{Src: ptr.Float32(10.0), Dest: ptr.Float64(0)}, want: float64(10.0)},
-		{name: "CopyFloat64ToFloat64", args: args{Src: ptr.Float64(10.0), Dest: ptr.Float64(0)}, want: float64(10.0)},
-		{name: "CopyFloat32ToFloat32", args: args{Src: ptr.Float32(10.0), Dest: ptr.Float32(0)}, want: float32(10.0)},
-		{name: "CopyFloat64ToFloat32", args: args{Src: ptr.Float64(10.0), Dest: ptr.Float32(0)}, want: float32(10.0)},
-		// bool
-		{name: "CopyBoolToBool", args: args{Src: ptr.Bool(true), Dest: ptr.Bool(false)}, want: true},
+	for i := 1; i <= len(src); i++ {
+		dst := make([]byte, i)
+		src := src[:i]
+		copier := Get(reflect.TypeOf(dst), reflect.TypeOf(src))
+		copier(unsafe.Pointer(reflect.ValueOf(&dst).Pointer()), unsafe.Pointer(reflect.ValueOf(&src).Pointer()))
+		if !bytes.Equal(dst, src) {
+			t.Fatalf("a destination with len %d is not equal a source", i)
+		}
+	}
+}
+
+func TestMemCopiers(t *testing.T) {
+	src := make([]byte, len(funcs.sizes))
+	_, err := rand.Read(src)
+	if err != nil {
+		t.Fatalf("rand: %s", err)
+	}
+	for i := 1; i <= len(src); i++ {
+		dst := make([]byte, i)
+		src := src[:i]
+		typ := reflect.ArrayOf(i, reflect.TypeOf(uint8(0)))
+		copier := Get(typ, typ)
+		copier(unsafe.Pointer(reflect.ValueOf(dst).Pointer()), unsafe.Pointer(reflect.ValueOf(src).Pointer()))
+		if !bytes.Equal(dst, src) {
+			t.Fatalf("a destination with len %d is not equal a source", i)
+		}
+	}
+}
+
+func TestTypesCopiers(t *testing.T) {
+	b := []byte("COVID-21")
+	testValues := make(map[reflect.Type]reflect.Value)
+	for _, v := range []interface{}{
+		ptr.Int(10),
+		ptr.Int8(10),
+		ptr.Int16(10),
+		ptr.Int32(10),
+		ptr.Int64(10),
+		ptr.UInt(10),
+		ptr.UInt8(10),
+		ptr.UInt16(10),
+		ptr.UInt32(10),
+		ptr.UInt64(10),
+		ptr.Float32(10.0),
+		ptr.Float64(10.0),
+		ptr.Complex64(10.0),
+		ptr.Complex128(10.0),
+		ptr.Bool(true),
+		ptr.Duration(time.Second),
+		ptr.Time(time.Date(2021, 2, 18, 16, 0, 1, 0, time.UTC)),
+		ptr.String("COVID-21"),
+		&b,
+	} {
+		val := reflect.ValueOf(v)
+		testValues[val.Elem().Type()] = val
+
+		valP := reflect.New(val.Type())
+		valP.Elem().Set(val)
+		testValues[valP.Elem().Type()] = valP
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			srcPtr := reflect.ValueOf(tt.args.Src)
-			src := reflect.Indirect(srcPtr)
-			dstPtr := reflect.ValueOf(tt.args.Dest)
-			dst := reflect.Indirect(dstPtr)
-			copier := Get(dst.Type(), src.Type())
-			copier(unsafe.Pointer(dstPtr.Pointer()), unsafe.Pointer(srcPtr.Pointer()))
-			checkEqual(t, dst.Interface(), tt.want)
-		})
+	for key, copier := range funcs.funcs {
+		// var dst reflect.Value
+
+		src, ok := testValues[key.Src]
+		if !ok {
+			continue
+		}
+
+		dst := reflect.New(key.Dest)
+
+		t.Logf("Src key «%s»; src «%#v»", key.Src, src)
+		t.Logf("Dst key «%s»; dst «%#v»", key.Dest, dst)
+
+		set := func(dst, src reflect.Value) {
+			copier(unsafe.Pointer(dst.Pointer()), unsafe.Pointer(src.Pointer()))
+
+			dst = dst.Elem()
+			src = src.Elem()
+			t.Logf("src «%#v»", src)
+			t.Logf("dst «%#v»", dst)
+
+			if key.Dest.Kind() == reflect.Ptr {
+				dst = dst.Elem()
+			}
+			dstI := dst.Interface()
+
+			if key.Src.Kind() == reflect.Ptr {
+				src = src.Elem()
+			}
+			src = src.Convert(dst.Type())
+			srcI := src.Interface()
+
+			if !reflect.DeepEqual(dstI, srcI) {
+				t.Errorf("want «%v» got «%v»", srcI, dstI)
+			}
+		}
+
+		set(dst, src)
+		if elem := dst.Elem(); elem.Kind() == reflect.Ptr {
+			elem.Set(reflect.New(elem.Type().Elem()))
+			set(dst, src)
+		}
+	}
+}
+
+func TestSet(t *testing.T) {
+	Set(reflect.TypeOf(int(0)), reflect.TypeOf(int(0)), func(dst, src unsafe.Pointer) {
+		*(*int)(unsafe.Pointer(dst)) = int(*(*int)(unsafe.Pointer(src)))
+	})
+}
+
+func TestGet(t *testing.T) {
+	copier := Get(reflect.TypeOf(struct{ I int }{I: 1}), reflect.TypeOf([]byte{2}))
+	if copier != nil {
+		t.Error("should return nil when types are incompatible")
+	}
+
+	copier = Get(reflect.TypeOf(map[string]string{}), reflect.TypeOf(map[string]string{}))
+	if copier == nil {
+		t.Error("Get(map, map) should not return nil")
 	}
 }

@@ -1,4 +1,8 @@
 github.com/gotidy/ptr v1.1.0 h1:R4SMNdNK5e99kjGZJJpzISXi8N7Lma0YX63OFskf0sg=
 github.com/gotidy/ptr v1.1.0/go.mod h1:vpltyHhOZE+NGXUiwpVl3wV9AGEBlxhdnaimPDxRLxg=
+github.com/gotidy/ptr v1.2.0 h1:SslgKj1gtGoX3JPhu9CKhAvejZKEtIu9ut78nZwySOM=
+github.com/gotidy/ptr v1.2.0/go.mod h1:vpltyHhOZE+NGXUiwpVl3wV9AGEBlxhdnaimPDxRLxg=
+github.com/gotidy/ptr v1.3.0 h1:5wdrH1G8X4txy6fbWWRznr7k974wMWtePWP3p6s1API=
+github.com/gotidy/ptr v1.3.0/go.mod h1:vpltyHhOZE+NGXUiwpVl3wV9AGEBlxhdnaimPDxRLxg=
 github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a h1:zPPuIq2jAWWPTrGt70eK/BSch+gFAGrNzecsoENgu2o=
 github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a/go.mod h1:yL958EeXv8Ylng6IfnvG4oflryUi3vgA3xPs9hmII1s=

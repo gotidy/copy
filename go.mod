@@ -3,6 +3,6 @@ module github.com/gotidy/copy
 go 1.15
 
 require (
-	github.com/gotidy/ptr v1.1.0
+	github.com/gotidy/ptr v1.3.0
 	github.com/jinzhu/copier v0.0.0-20190924061706-b57f9002281a
 )
