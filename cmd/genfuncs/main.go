@@ -89,8 +89,10 @@ func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	same := dst == src
 
 	switch dst.Kind() {
-	case reflect.Array, reflect.Chan, reflect.Map, reflect.Ptr, reflect.Slice:
+	case reflect.Array, reflect.Chan, reflect.Ptr, reflect.Slice:
 		same = same || dst.Elem() == src.Elem()
+	case reflect.Map:
+		same = same || (dst.Elem() == src.Elem() && dst.Key() == src.Key())
 	}
 
 	if same && dst.Size() == src.Size() && src.Size() > 0 && src.Size() <= uintptr(len(t.sizes)) {
