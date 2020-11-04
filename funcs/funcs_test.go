@@ -11,12 +11,6 @@ import (
 	"github.com/gotidy/ptr"
 )
 
-func checkEqual(t *testing.T, actual, expected interface{}) {
-	if !reflect.DeepEqual(actual, expected) {
-		t.Errorf("Not equal. Actual: %v; expected: %v", actual, expected)
-	}
-}
-
 func TestBytesCopiers(t *testing.T) {
 	src := make([]byte, 100)
 	_, err := rand.Read(src)
