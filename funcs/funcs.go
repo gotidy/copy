@@ -1,5 +1,6 @@
 //go:generate go run gen.go
 //go:generate gofmt -s -w funcs.gen.go
+// Package funcs provides copy functions for specified types.
 package funcs
 
 import (

@@ -1,3 +1,4 @@
+// Package copy provides a copy library to make copying of structs to/from others structs a bit easier.
 package copy
 
 import (
