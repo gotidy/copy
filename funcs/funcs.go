@@ -1,5 +1,5 @@
 //go:generate go run gen.go
-// go:generate gofmt -s -w funcs.gen.go
+//go:generate gofmt -s -w funcs.gen.go
 package funcs
 
 import (
