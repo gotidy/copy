@@ -9,8 +9,9 @@ import (
 )
 
 type funcKey struct {
-	Src  reflect.Type
-	Dest reflect.Type
+	Src reflect.Type
+	Dst reflect.Type
+	// Zero bool // Initiate pointer to zero value
 }
 
 func typeOf(v interface{}) reflect.Type {
@@ -31,7 +32,7 @@ type CopyFuncs struct {
 // Get the copy function for the pair of types, if it is not found then nil is returned.
 func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 	t.mu.RLock()
-	f := t.funcs[funcKey{Src: src, Dest: dst}]
+	f := t.funcs[funcKey{Src: src, Dst: dst}]
 	t.mu.RUnlock()
 	if f != nil {
 		return f
@@ -65,7 +66,7 @@ func (t *CopyFuncs) Get(dst, src reflect.Type) func(dst, src unsafe.Pointer) {
 // Set the copy function for the pair of types.
 func (t *CopyFuncs) Set(dst, src reflect.Type, f func(dst, src unsafe.Pointer)) {
 	t.mu.Lock()
-	t.funcs[funcKey{Src: src, Dest: dst}] = f
+	t.funcs[funcKey{Src: src, Dst: dst}] = f
 	t.mu.Unlock()
 }
 

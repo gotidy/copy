@@ -7,6 +7,8 @@
 
 This package is meant to make copying of structs to/from others structs a bit easier.
 
+Nested structures, embedded types, pointers, sql null types are supported.
+
 ## Installation
 
 ```sh
