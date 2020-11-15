@@ -272,8 +272,17 @@ func ifaceToPtr(i interface{}) unsafe.Pointer {
 }
 
 func memcopy(dst, src unsafe.Pointer, size int) {
-	copy(
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: size, Cap: size})), //nolint
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: size, Cap: size})), //nolint
-	)
+	var srcSlice []byte
+	srcSH := (*reflect.SliceHeader)((unsafe.Pointer(&srcSlice)))
+	srcSH.Data = uintptr(src)
+	srcSH.Cap = int(size)
+	srcSH.Len = int(size)
+
+	var dstSlice []byte
+	dstSH := (*reflect.SliceHeader)((unsafe.Pointer(&dstSlice)))
+	dstSH.Data = uintptr(dst)
+	dstSH.Cap = int(size)
+	dstSH.Len = int(size)
+
+	copy(dstSlice, srcSlice)
 }
