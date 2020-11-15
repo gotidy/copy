@@ -73,8 +73,9 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
+	// same type -> same type
 	if src.Type == dst.Type {
-		size := src.Type.Size()
+		size := int(src.Type.Size())
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			// More safe and independent from internal structs
@@ -85,7 +86,26 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
+	// struct -> *struct
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
+		copier := c.get(dst.Type, src.Type)
+
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+		}
+	}
+
+	// struct -> *struct
+	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
+		copier := c.get(dst.Type, src.Type)
+
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+		}
+	}
+
+	// *struct -> struct
+	if src.Type.Kind() == reflect.Ptr && dst.Type.Kind() == reflect.Struct && src.Type.Elem().Kind() == reflect.Struct {
 		copier := c.get(dst.Type, src.Type)
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
@@ -251,9 +271,9 @@ func ifaceToPtr(i interface{}) unsafe.Pointer {
 	return (*iface)(unsafe.Pointer(&i)).Data
 }
 
-func memcopy(dst, src unsafe.Pointer, size uintptr) {
+func memcopy(dst, src unsafe.Pointer, size int) {
 	copy(
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: int(size), Cap: int(size)})), //nolint
-		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: int(size), Cap: int(size)})), //nolint
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(dst), Len: size, Cap: size})), //nolint
+		*(*[]byte)(unsafe.Pointer(&reflect.SliceHeader{Data: uintptr(src), Len: size, Cap: size})), //nolint
 	)
 }
