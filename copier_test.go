@@ -34,22 +34,22 @@ func diff(t *testing.T, prefix string, a, b []byte) {
 	}
 }
 
-func equal(t *testing.T, dst, src interface{}) {
-	dstData, err := json.Marshal(dst)
+func equal(t *testing.T, actual, expected interface{}) {
+	actualData, err := json.Marshal(actual)
 	if err != nil {
 		t.Fatalf("equal: %s", err)
 	}
 
-	t.Logf("dst: %s", string(dstData))
+	t.Logf("actual: %s", string(actualData))
 
-	srcData, err := json.Marshal(src)
+	expectedData, err := json.Marshal(expected)
 	if err != nil {
 		t.Fatalf("equal: %s", err)
 	}
 
-	t.Logf("src: %s", string(srcData))
+	t.Logf("expected: %s", string(expectedData))
 
-	diff(t, "dst and src is not equal", dstData, srcData)
+	diff(t, "actual and expected is not equal", actualData, expectedData)
 }
 
 func TestCopiers_Copy(t *testing.T) {
@@ -265,5 +265,104 @@ func TestCopier_Expand(t *testing.T) {
 	Get(dst, src).Copy(&dst, &src)
 	if src.Exp.E != dst.E {
 		t.Errorf("want «%s» got «%s»", src.Exp.E, dst.E)
+	}
+}
+
+func TestCopier_StructPtr(t *testing.T) {
+	type internal0 struct {
+		I int
+	}
+
+	type testStruct0 struct {
+		V internal0
+	}
+
+	type internal1 struct {
+		I int
+	}
+
+	type testStruct1 struct {
+		V internal1
+	}
+
+	type internal2 struct {
+		I int
+	}
+
+	type testStruct2 struct {
+		V *internal2
+	}
+
+	type internal3 struct {
+		I int
+	}
+
+	type testStruct3 struct {
+		V *internal3
+	}
+
+	type test struct {
+		src      interface{}
+		dst      interface{}
+		expected interface{}
+	}
+	tests := []test{
+		// struct -> struct
+		{
+			src:      &testStruct0{V: internal0{I: 5}},
+			dst:      &testStruct1{V: internal1{I: 0}},
+			expected: &testStruct1{V: internal1{I: 5}},
+		},
+		// struct -> *struct
+		{
+			src:      &testStruct1{V: internal1{I: 5}},
+			dst:      &testStruct2{V: nil},
+			expected: &testStruct2{V: &internal2{I: 5}},
+		},
+		{
+			src:      &testStruct1{V: internal1{I: 5}},
+			dst:      &testStruct2{V: &internal2{I: 0}},
+			expected: &testStruct2{V: &internal2{I: 5}},
+		},
+		// *struct -> struct
+		{
+			src:      &testStruct2{V: &internal2{I: 5}},
+			dst:      &testStruct1{V: internal1{I: 0}},
+			expected: &testStruct1{V: internal1{I: 5}},
+		},
+		{
+			src:      &testStruct2{V: nil},
+			dst:      &testStruct1{V: internal1{I: 5}},
+			expected: &testStruct1{V: internal1{I: 5}},
+		},
+		// *struct -> *struct
+		{
+			src:      &testStruct2{V: nil},
+			dst:      &testStruct3{V: nil},
+			expected: &testStruct3{V: nil},
+		},
+		{
+			src:      &testStruct2{V: nil},
+			dst:      &testStruct3{V: &internal3{I: 5}},
+			expected: &testStruct3{V: &internal3{I: 5}},
+		},
+		{
+			src:      &testStruct2{V: &internal2{I: 5}},
+			dst:      &testStruct3{V: &internal3{I: 0}},
+			expected: &testStruct3{V: &internal3{I: 5}},
+		},
+		{
+			src:      &testStruct2{V: &internal2{I: 5}},
+			dst:      &testStruct3{V: nil},
+			expected: &testStruct3{V: &internal3{I: 5}},
+		},
+	}
+
+	for _, test := range tests {
+		New().Get(test.dst, test.src).Copy(test.dst, test.src)
+		equal(t, test.dst, test.expected)
+		// if !reflect.DeepEqual(&test.dst, &test.expected) {
+		// 	t.Errorf("Expected «%» actual ")
+		// }
 	}
 }

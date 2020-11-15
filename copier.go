@@ -112,7 +112,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
 		copier := c.get(dst.Type.Elem(), src.Type)
 
-		dstSize := int(src.Type.Elem().Size())
+		dstSize := int(dst.Type.Elem().Size())
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
@@ -129,7 +129,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
 		copier := c.get(dst.Type.Elem(), src.Type.Elem())
 
-		dstSize := int(src.Type.Elem().Size())
+		dstSize := int(dst.Type.Elem().Size())
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
@@ -137,7 +137,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 				return
 			}
 			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
-			if dstFieldPtr == nil {
+			if *dstFieldPtr == nil {
 				*dstFieldPtr = (*struct{})(alloc(dstSize))
 			}
 
