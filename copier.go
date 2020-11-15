@@ -86,7 +86,7 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
-	// struct -> *struct
+	// struct -> struct
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
 		copier := c.get(dst.Type, src.Type)
 
@@ -95,21 +95,53 @@ func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
-	// struct -> *struct
+	// *struct -> struct
 	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
+		copier := c.get(dst.Type, src.Type.Elem())
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
+			if *srcFieldPtr == nil {
+				return
+			}
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(*srcFieldPtr))
 		}
 	}
 
-	// *struct -> struct
-	if src.Type.Kind() == reflect.Ptr && dst.Type.Kind() == reflect.Struct && src.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
+	// struct -> *struct
+	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
+		copier := c.get(dst.Type.Elem(), src.Type)
+
+		dstSize := int(src.Type.Elem().Size())
 
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
+			if *dstFieldPtr == nil {
+				*dstFieldPtr = (*struct{})(alloc(dstSize))
+			}
+
+			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+		}
+	}
+
+	// *struct -> *struct
+	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct &&
+		dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
+		copier := c.get(dst.Type.Elem(), src.Type.Elem())
+
+		dstSize := int(src.Type.Elem().Size())
+
+		return func(dstPtr, srcPtr unsafe.Pointer) {
+			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
+			if *srcFieldPtr == nil {
+				return
+			}
+			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
+			if dstFieldPtr == nil {
+				*dstFieldPtr = (*struct{})(alloc(dstSize))
+			}
+
+			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(*srcFieldPtr))
 		}
 	}
 
@@ -285,4 +317,9 @@ func memcopy(dst, src unsafe.Pointer, size int) {
 	dstSH.Len = int(size)
 
 	copy(dstSlice, srcSlice)
+}
+
+func alloc(size int) unsafe.Pointer {
+	size = (size + 7) / 8 // size in int64
+	return unsafe.Pointer(&(make([]int64, size)[0]))
 }
