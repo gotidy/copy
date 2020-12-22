@@ -61,6 +61,11 @@ copier.Copy(&dst, &src)
 
 ```
 
+## Alternative projects
+
+- [ulule/Deepcopier](https://github.com/ulule/deepcopier)
+- [jinzhu/Copier](https://github.com/jinzhu/copier)
+
 ### [Benchmark](https://github.com/gotidy/copy-bench)
 
 Benchmarks source code can be found [here](https://github.com/gotidy/copy-bench)
