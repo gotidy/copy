@@ -2,16 +2,17 @@
 package copy
 
 import (
+	"reflect"
 	"unsafe"
 )
 
 // Copier fills a destination from source.
 type Copier struct {
-	// srcType reflect.Type
-	// dstType reflect.Type
-	// srtType unsafe.Pointer
-	// dstType unsafe.Pointer
-	copiers []fieldCopier
+	srcType     Type
+	srcTypeName string
+	dstType     Type
+	dstTypeName string
+	copiers     []fieldCopier
 }
 
 // func NewCopier(cache   *cache.Cache, opt Options) Copier {
@@ -20,21 +21,15 @@ type Copier struct {
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
 func (c *Copier) Copy(dst, src interface{}) {
-	// fmt.Println("Copy.dst", reflect.TypeOf(dst))
-	// fmt.Println("Copy.src", reflect.TypeOf(src))
+	dstType, dstPtr := DataOf(dst)
+	srcType, srcPtr := DataOf(src)
 
-	// fmt.Println("copier.dst", reflect.PtrTo(c.dstType))
-	// fmt.Println("copier.src", reflect.PtrTo(c.srcType))
-
-	// if srcType := reflect.TypeOf(src); c.srcType != srcType {
-	// 	panic("source expected type «" + c.srcType.String() + "», but has " + srcType.String())
-	// }
-	// if dstType := reflect.TypeOf(dst); c.dstType != dstType {
-	// 	panic("destination expected type «" + c.dstType.String() + "», but has " + dstType.String())
-	// }
-
-	dstPtr := ifaceData(dst)
-	srcPtr := ifaceData(src)
+	if c.srcType != srcType {
+		panic("source expected type " + c.srcTypeName + ", but has " + reflect.TypeOf(src).String())
+	}
+	if c.dstType != dstType {
+		panic("destination expected type " + c.dstTypeName + ", but has " + reflect.TypeOf(dst).String())
+	}
 
 	c.copy(dstPtr, srcPtr)
 }

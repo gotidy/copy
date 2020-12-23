@@ -99,8 +99,8 @@ var resultIface unsafe.Pointer
 func BenchmarkTypeIface(b *testing.B) {
 	var v int
 	for i := 0; i < b.N; i++ {
-		resultIface = ifaceType(&v)
-		resultIface = ifaceType(&v)
+		resultIface = TypeOf(&v)
+		resultIface = TypeOf(&v)
 		// resultIface = ifaceType(&v)
 		// resultIface = ifaceType(&v)
 		// resultIface = ifaceType(&v)

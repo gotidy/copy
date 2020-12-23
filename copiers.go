@@ -210,8 +210,13 @@ func (c *Copiers) get(dst, src reflect.Type) *Copier {
 		}
 	}
 
-	// copier.dstType = reflect.PtrTo(dst)
-	// copier.srcType = reflect.PtrTo(src)
+	// TODO: Refactor
+	ifs := reflect.New(dst).Interface()
+	copier.dstType = TypeOf(ifs) // TypeOf(reflect.New(dst).Interface())
+	copier.dstTypeName = reflect.PtrTo(dst).String()
+	ifs = reflect.New(src).Interface()
+	copier.srcType = TypeOf(ifs) //TypeOf(reflect.New(src).Interface())
+	copier.srcTypeName = reflect.PtrTo(src).String()
 
 	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
