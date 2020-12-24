@@ -2,12 +2,10 @@
 package copy
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 	"unsafe"
 
-	"github.com/gotidy/copy/funcs"
 	"github.com/gotidy/copy/internal/cache"
 )
 
@@ -41,13 +39,19 @@ func Skip() Option {
 	}
 }
 
+// StructCopier fills a destination from source.
+type Copier interface {
+	Copy(dst interface{}, src interface{})
+	copy(dst, src unsafe.Pointer)
+}
+
 // Copiers is a structs copier.
 type Copiers struct {
 	cache   *cache.Cache
 	options Options
 
 	mu      sync.RWMutex
-	copiers map[copierKey]*Copier
+	copiers map[copierKey]*StructCopier
 }
 
 // New create new Copier.
@@ -58,99 +62,10 @@ func New(options ...Option) *Copiers {
 		option(&opts)
 	}
 
-	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]*Copier)}
+	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]*StructCopier)}
 }
 
 type fieldCopier = func(dst, src unsafe.Pointer)
-
-func (c *Copiers) fieldCopier(dst, src cache.Field) fieldCopier {
-	dstOffset := dst.Offset
-	srcOffset := src.Offset
-	copier := funcs.Get(dst.Type, src.Type)
-	if copier != nil {
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset))
-		}
-	}
-
-	// same type -> same type
-	if src.Type == dst.Type {
-		size := int(src.Type.Size())
-
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			// More safe and independent from internal structs
-			// src := reflect.NewAt(src.Type, unsafe.Pointer(uintptr(srcPtr)+src.Offset)).Elem()
-			// dst := reflect.NewAt(dst.Type, unsafe.Pointer(uintptr(dstPtr)+dst.Offset)).Elem()
-			// dst.Set(src)
-			memcopy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset), size)
-		}
-	}
-
-	// struct -> struct
-	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
-
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
-		}
-	}
-
-	// *struct -> struct
-	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type.Elem())
-
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
-			if *srcFieldPtr == nil {
-				return
-			}
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(*srcFieldPtr))
-		}
-	}
-
-	// struct -> *struct
-	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type.Elem(), src.Type)
-
-		dstSize := int(dst.Type.Elem().Size())
-
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
-			if *dstFieldPtr == nil {
-				*dstFieldPtr = (*struct{})(alloc(dstSize))
-			}
-
-			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
-		}
-	}
-
-	// *struct -> *struct
-	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct &&
-		dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type.Elem(), src.Type.Elem())
-
-		dstSize := int(dst.Type.Elem().Size())
-
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
-			if *srcFieldPtr == nil {
-				return
-			}
-			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
-			if *dstFieldPtr == nil {
-				*dstFieldPtr = (*struct{})(alloc(dstSize))
-			}
-
-			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(*srcFieldPtr))
-		}
-	}
-
-	if !c.options.Skip {
-		panic(fmt.Errorf(`field «%s» of type «%s» is not assignable to field «%s» of type «%s»`, src.Name, src.Type.String(), dst.Name, dst.Type.String()))
-	}
-
-	return nil
-}
 
 // Prepare caches structures of src and dst. Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
@@ -188,7 +103,7 @@ func (c *Copiers) Copy(dst, src interface{}) {
 	copier.copy(dstPtr, srcPtr)
 }
 
-func (c *Copiers) get(dst, src reflect.Type) *Copier {
+func (c *Copiers) get(dst, src reflect.Type) Copier {
 	c.mu.RLock()
 	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
 	c.mu.RUnlock()
@@ -196,27 +111,7 @@ func (c *Copiers) get(dst, src reflect.Type) *Copier {
 		return copier
 	}
 
-	copier = &Copier{}
-
-	srcStruct := c.cache.GetByType(src)
-	dstStruct := c.cache.GetByType(dst)
-
-	for i := 0; i < srcStruct.NumField(); i++ {
-		srcField := srcStruct.Field(i)
-		if dstField, ok := dstStruct.FieldByName(srcField.Name); ok {
-			if f := c.fieldCopier(dstField, srcField); f != nil {
-				copier.copiers = append(copier.copiers, f)
-			}
-		}
-	}
-
-	// TODO: Refactor
-	ifs := reflect.New(dst).Interface()
-	copier.dstType = TypeOf(ifs) // TypeOf(reflect.New(dst).Interface())
-	copier.dstTypeName = reflect.PtrTo(dst).String()
-	ifs = reflect.New(src).Interface()
-	copier.srcType = TypeOf(ifs) //TypeOf(reflect.New(src).Interface())
-	copier.srcTypeName = reflect.PtrTo(src).String()
+	copier = NewStructCopier(c, dst, src)
 
 	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
@@ -226,7 +121,7 @@ func (c *Copiers) get(dst, src reflect.Type) *Copier {
 }
 
 // Get Copier for a specific destination and source.
-func (c *Copiers) Get(dst, src interface{}) *Copier {
+func (c *Copiers) Get(dst, src interface{}) Copier {
 	srcValue := reflect.Indirect(reflect.ValueOf(src))
 	if srcValue.Kind() != reflect.Struct {
 		panic("source must be struct")
@@ -257,6 +152,6 @@ func Copy(dst, src interface{}) {
 }
 
 // Get Copier for a specific destination and source.
-func Get(dst, src interface{}) *Copier {
+func Get(dst, src interface{}) Copier {
 	return defaultCopier.Get(dst, src)
 }
