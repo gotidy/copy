@@ -2,6 +2,7 @@
 package copy
 
 import (
+	"fmt"
 	"reflect"
 	"sync"
 	"unsafe"
@@ -51,7 +52,7 @@ type Copiers struct {
 	options Options
 
 	mu      sync.RWMutex
-	copiers map[copierKey]*StructCopier
+	copiers map[copierKey]Copier
 }
 
 // New create new Copier.
@@ -62,10 +63,8 @@ func New(options ...Option) *Copiers {
 		option(&opts)
 	}
 
-	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]*StructCopier)}
+	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]Copier)}
 }
-
-type fieldCopier = func(dst, src unsafe.Pointer)
 
 // Prepare caches structures of src and dst. Dst and src each must be a pointer to struct.
 // contents is not copied. It can be used for checking ability of copying.
@@ -78,29 +77,21 @@ func (c *Copiers) Prepare(dst, src interface{}) {
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
 func (c *Copiers) Copy(dst, src interface{}) {
-	srcValue := reflect.ValueOf(src)
-	if srcValue.Kind() != reflect.Ptr {
+	srcType := reflect.TypeOf(src)
+	if srcType.Kind() != reflect.Ptr {
 		panic("source must be pointer to struct")
 	}
-	srcPtr := unsafe.Pointer(srcValue.Pointer())
-	srcValue = srcValue.Elem()
-	if srcValue.Kind() != reflect.Struct {
-		panic("source must be pointer to struct")
-	}
+	srcType = srcType.Elem()
 
-	dstValue := reflect.ValueOf(dst)
-	if dstValue.Kind() != reflect.Ptr {
+	dstType := reflect.TypeOf(dst)
+	if dstType.Kind() != reflect.Ptr {
 		panic("destination must be pointer to struct")
 	}
-	dstPtr := unsafe.Pointer(dstValue.Pointer())
-	dstValue = dstValue.Elem()
-	if dstValue.Kind() != reflect.Struct {
-		panic("destination must be pointer to struct")
-	}
+	dstType = dstType.Elem()
 
-	copier := c.get(dstValue.Type(), srcValue.Type())
+	copier := c.get(dstType, srcType)
 
-	copier.copy(dstPtr, srcPtr)
+	copier.Copy(dst, src)
 }
 
 func (c *Copiers) get(dst, src reflect.Type) Copier {
@@ -111,7 +102,11 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 		return copier
 	}
 
-	copier = NewStructCopier(c, dst, src)
+	copier = getCopier(c, dst, src)
+	// TODO: To error
+	if copier == nil {
+		panic(fmt.Sprintf("destination(%s) or source(%s) type is not supported", dst, src))
+	}
 
 	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier

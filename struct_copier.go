@@ -10,6 +10,8 @@ import (
 	"github.com/gotidy/copy/internal/cache"
 )
 
+type fieldCopier = func(dst, src unsafe.Pointer)
+
 // StructCopier fills a destination from source.
 type StructCopier struct {
 	*Copiers
