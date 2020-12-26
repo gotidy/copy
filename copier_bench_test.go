@@ -1,6 +1,7 @@
 package copy
 
 import (
+	"reflect"
 	"testing"
 )
 
@@ -53,11 +54,59 @@ func BenchmarkCopier(b *testing.B) {
 		copier.Copy(&dst, &src)
 	}
 }
+func BenchmarkCopierIf(b *testing.B) {
+	type Copier interface {
+		Copy(dst interface{}, src interface{})
+	}
+
+	c := New()
+	var copier Copier = c.Get(&dst, &src)
+
+	for i := 0; i < b.N; i++ {
+		copier.Copy(&dst, &src)
+	}
+}
 func BenchmarkCopiers(b *testing.B) {
 	c := New()
 	c.Prepare(&dst, &src)
 
 	for i := 0; i < b.N; i++ {
 		c.Copy(&dst, &src)
+	}
+}
+
+var resultTypeOf reflect.Type
+
+func BenchmarkTypeTypeOf(b *testing.B) {
+	var v int
+	for i := 0; i < b.N; i++ {
+		resultTypeOf = reflect.TypeOf(&v)
+		resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+		// resultTypeOf = reflect.TypeOf(&v)
+	}
+}
+
+var resultIface Type
+
+func BenchmarkTypeIface(b *testing.B) {
+	var v int
+	for i := 0; i < b.N; i++ {
+		resultIface = TypeOf(&v)
+		resultIface = TypeOf(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
+		// resultIface = ifaceType(&v)
 	}
 }
