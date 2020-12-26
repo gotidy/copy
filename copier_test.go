@@ -200,7 +200,7 @@ func TestCopier_Pointer(t *testing.T) {
 		Copy(v, &v)
 	}()
 
-	c := New().Get(v, v)
+	c := New().Get(&v, &v)
 	func() {
 		defer func() {
 			if recover() == nil {
@@ -219,6 +219,31 @@ func TestCopier_Pointer(t *testing.T) {
 	}()
 }
 
+func TestCopier_Copy_CheckParams(t *testing.T) {
+	v := struct{ i int }{}
+	vWrong := struct{}{}
+
+	c := New().Get(&v, &v)
+	// Check src parameter
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when parameters types does not match the copier types")
+			}
+		}()
+		c.Copy(&vWrong, &v)
+	}()
+	// Check dst parameter
+	func() {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when parameters types does not match the copier types")
+			}
+		}()
+		c.Copy(&v, &vWrong)
+	}()
+}
+
 func TestCopier_Skip(t *testing.T) {
 	src := struct{ S string }{S: "string"}
 	dst := struct{ S int }{}
@@ -229,7 +254,7 @@ func TestCopier_Skip(t *testing.T) {
 				t.Error("must panic when fields with the same name are of different types")
 			}
 		}()
-		New().Get(dst, src)
+		New().Get(&dst, &src)
 	}()
 
 	func() {
@@ -238,7 +263,7 @@ func TestCopier_Skip(t *testing.T) {
 				t.Errorf("do not must panic with Skip option when fields with the same name are of different types: %s", err)
 			}
 		}()
-		New(Skip()).Get(dst, src)
+		New(Skip()).Get(&dst, &src)
 	}()
 }
 
@@ -262,7 +287,7 @@ func TestCopier_Expand(t *testing.T) {
 	}
 	dst := testStruct2{}
 
-	Get(dst, src).Copy(&dst, &src)
+	Get(&dst, &src).Copy(&dst, &src)
 	if src.Exp.E != dst.E {
 		t.Errorf("want «%s» got «%s»", src.Exp.E, dst.E)
 	}

@@ -3,7 +3,6 @@ package copy
 import (
 	"reflect"
 	"testing"
-	"unsafe"
 )
 
 type internal struct {
@@ -94,7 +93,7 @@ func BenchmarkTypeTypeOf(b *testing.B) {
 	}
 }
 
-var resultIface unsafe.Pointer
+var resultIface Type
 
 func BenchmarkTypeIface(b *testing.B) {
 	var v int

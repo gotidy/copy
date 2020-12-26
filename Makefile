@@ -11,3 +11,4 @@ gen:
 
 test:
 	go test ./...	
+	go test ./... -tags=safe

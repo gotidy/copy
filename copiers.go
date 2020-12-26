@@ -17,6 +17,11 @@ type copierKey struct {
 	Dest reflect.Type
 }
 
+type indirectCopierKey struct {
+	Src  Type
+	Dest Type
+}
+
 // Options is Copiers parameters.
 type Options struct {
 	Tag  string
@@ -51,8 +56,9 @@ type Copiers struct {
 	cache   *cache.Cache
 	options Options
 
-	mu      sync.RWMutex
-	copiers map[copierKey]Copier
+	mu              sync.RWMutex
+	copiers         map[copierKey]Copier
+	indirectCopiers map[indirectCopierKey]Copier
 }
 
 // New create new Copier.
@@ -63,7 +69,12 @@ func New(options ...Option) *Copiers {
 		option(&opts)
 	}
 
-	return &Copiers{cache: cache.New(opts.Tag), options: opts, copiers: make(map[copierKey]Copier)}
+	return &Copiers{
+		cache:           cache.New(opts.Tag),
+		options:         opts,
+		copiers:         make(map[copierKey]Copier),
+		indirectCopiers: make(map[indirectCopierKey]Copier),
+	}
 }
 
 // Prepare caches structures of src and dst. Dst and src each must be a pointer to struct.
@@ -77,21 +88,7 @@ func (c *Copiers) Prepare(dst, src interface{}) {
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
 func (c *Copiers) Copy(dst, src interface{}) {
-	srcType := reflect.TypeOf(src)
-	if srcType.Kind() != reflect.Ptr {
-		panic("source must be pointer to struct")
-	}
-	srcType = srcType.Elem()
-
-	dstType := reflect.TypeOf(dst)
-	if dstType.Kind() != reflect.Ptr {
-		panic("destination must be pointer to struct")
-	}
-	dstType = dstType.Elem()
-
-	copier := c.get(dstType, srcType)
-
-	copier.Copy(dst, src)
+	c.Get(dst, src).Copy(dst, src)
 }
 
 func (c *Copiers) get(dst, src reflect.Type) Copier {
@@ -103,9 +100,8 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 	}
 
 	copier = getCopier(c, dst, src)
-	// TODO: To error
 	if copier == nil {
-		panic(fmt.Sprintf("destination(%s) or source(%s) type is not supported", dst, src))
+		panic(fmt.Sprintf("the combination of destination(%s) and source(%s) types is not supported", dst, src))
 	}
 
 	c.mu.Lock()
@@ -117,17 +113,32 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 
 // Get Copier for a specific destination and source.
 func (c *Copiers) Get(dst, src interface{}) Copier {
-	srcValue := reflect.Indirect(reflect.ValueOf(src))
-	if srcValue.Kind() != reflect.Struct {
-		panic("source must be struct")
+	c.mu.RLock()
+	copier, ok := c.indirectCopiers[indirectCopierKey{Dest: TypeOf(dst), Src: TypeOf(src)}]
+	c.mu.RUnlock()
+	if ok {
+		return copier
 	}
 
-	dstValue := reflect.Indirect(reflect.ValueOf(dst))
-	if dstValue.Kind() != reflect.Struct {
-		panic("destination must be struct")
+	srcType := reflect.TypeOf(src)
+	if srcType.Kind() != reflect.Ptr {
+		panic("source must be pointer")
 	}
+	srcType = srcType.Elem()
 
-	return c.get(dstValue.Type(), srcValue.Type())
+	dstType := reflect.TypeOf(dst)
+	if dstType.Kind() != reflect.Ptr {
+		panic("destination must be pointer")
+	}
+	dstType = dstType.Elem()
+
+	copier = c.get(dstType, srcType)
+
+	c.mu.Lock()
+	c.indirectCopiers[indirectCopierKey{Dest: TypeOf(dst), Src: TypeOf(src)}] = copier
+	c.mu.Unlock()
+
+	return copier
 }
 
 // defaultCopier uses Copier with a "copy" tag.
