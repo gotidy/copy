@@ -222,27 +222,31 @@ func TestCopier_Pointer(t *testing.T) {
 
 func TestCopier_Copy_CheckParams(t *testing.T) {
 	v := struct{ i int }{}
+	pV := &v
 	vWrong := struct{}{}
+	pVWrong := &vWrong
 
-	c := New().Get(&v, &v)
+	copy := func(c Copier, dst, src interface{}) {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when parameters types does not match the copier types")
+			}
+		}()
+		c.Copy(dst, src)
+	}
+
+	copiers := New()
+
 	// Check src parameter
-	func() {
-		defer func() {
-			if recover() == nil {
-				t.Error("must panic on when parameters types does not match the copier types")
-			}
-		}()
-		c.Copy(&vWrong, &v)
-	}()
+	copy(copiers.Get(&v, &v), &vWrong, &v)
+	copy(copiers.Get(&pV, &v), &pVWrong, &v)
+	copy(copiers.Get(&v, &pV), &vWrong, &pV)
+	copy(copiers.Get(&pV, &pV), &pVWrong, &pV)
 	// Check dst parameter
-	func() {
-		defer func() {
-			if recover() == nil {
-				t.Error("must panic on when parameters types does not match the copier types")
-			}
-		}()
-		c.Copy(&v, &vWrong)
-	}()
+	copy(copiers.Get(&v, &v), &v, &vWrong)
+	copy(copiers.Get(&pV, &v), &pV, &vWrong)
+	copy(copiers.Get(&v, &pV), &v, &pVWrong)
+	copy(copiers.Get(&pV, &pV), &pV, &pVWrong)
 }
 
 func TestCopier_Skip(t *testing.T) {
@@ -456,4 +460,33 @@ func TestCopiers_Parallel(t *testing.T) {
 		}()
 	}
 	wg.Wait()
+}
+
+func TestCopier_StructCopiers(t *testing.T) {
+	type testStruct1 struct {
+		Value int
+	}
+	type testStruct2 struct {
+		Value int
+	}
+	src := testStruct1{Value: 10}
+	pSrc := &src
+	copiers := New()
+
+	dst := testStruct2{}
+	pDst := &dst
+
+	copiers.Get(&dst, &src).Copy(&dst, &src)
+
+	dst = testStruct2{}
+	copiers.Get(&pDst, &src).Copy(&pDst, &src)
+	equal(t, dst, src)
+
+	dst = testStruct2{}
+	copiers.Get(&dst, &pSrc).Copy(&dst, &pSrc)
+	equal(t, dst, src)
+
+	dst = testStruct2{}
+	copiers.Get(&pDst, &pSrc).Copy(&pDst, &pSrc)
+	equal(t, dst, src)
 }

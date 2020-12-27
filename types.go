@@ -24,10 +24,10 @@ func getValueKind(t reflect.Type) ValueKind {
 	switch k := t.Kind(); {
 	case k == reflect.Struct:
 		kind += StructValue
-	case k == reflect.Slice:
-		kind += SliceValue
-	case k == reflect.Map && t.Key().Kind() == reflect.String && t.Elem().Kind() == reflect.Interface:
-		kind += MapValue
+	// case k == reflect.Slice:
+	// 	kind += SliceValue
+	// case k == reflect.Map && t.Key().Kind() == reflect.String && t.Elem().Kind() == reflect.Interface:
+	// 	kind += MapValue
 	default:
 		return UnknownKind
 	}
