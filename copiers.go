@@ -96,22 +96,29 @@ func (c *Copiers) Copy(dst, src interface{}) {
 	c.Get(dst, src).Copy(dst, src)
 }
 
-func (c *Copiers) get(dst, src reflect.Type) internalCopier {
+func checkGet(copier internalCopier, err error) internalCopier {
+	if err != nil {
+		panic(err)
+	}
+	return copier
+}
+
+func (c *Copiers) get(dst, src reflect.Type) (internalCopier, error) {
 	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
 	if ok {
-		return copier
+		return copier, nil
 	}
 
 	copier = getCopier(c, dst, src)
 	if copier == nil {
-		panic(fmt.Sprintf("the combination of destination(%s) and source(%s) types is not supported", dst, src))
+		return nil, fmt.Errorf("the combination of destination(%s) and source(%s) types is not supported", dst, src)
 	}
 
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
 
 	copier.init(dst, src)
 
-	return copier
+	return copier, nil
 }
 
 // Get Copier for a specific destination and source.
@@ -138,7 +145,7 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 	}
 	dstType = dstType.Elem()
 
-	copier = c.get(dstType, srcType)
+	copier = checkGet(c.get(dstType, srcType))
 
 	c.indirectCopiers[indirectCopierKey{Dest: TypeOf(dst), Src: TypeOf(src)}] = copier
 

@@ -64,10 +64,10 @@ func (c *StructCopier) copy(dst, src unsafe.Pointer) {
 func (c *StructCopier) fieldCopier(dst, src cache.Field) fieldCopier {
 	dstOffset := dst.Offset
 	srcOffset := src.Offset
-	copier := funcs.Get(dst.Type, src.Type)
-	if copier != nil {
+	copierFunc := funcs.Get(dst.Type, src.Type)
+	if copierFunc != nil {
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset))
+			copierFunc(unsafe.Pointer(uintptr(dstPtr)+dstOffset), unsafe.Pointer(uintptr(srcPtr)+srcOffset))
 		}
 	}
 
@@ -84,34 +84,8 @@ func (c *StructCopier) fieldCopier(dst, src cache.Field) fieldCopier {
 		}
 	}
 
-	// struct -> struct
-	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
-		}
-	}
-
-	// *struct -> struct
-	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
-		}
-	}
-
-	// struct -> *struct
-	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
-		return func(dstPtr, srcPtr unsafe.Pointer) {
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
-		}
-	}
-
-	// *struct -> *struct
-	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct &&
-		dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type)
+	copier, err := c.get(dst.Type, src.Type)
+	if err == nil {
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
@@ -138,8 +112,8 @@ func NewStructToPStructCopier(c *Copiers) *StructToPStructCopier {
 
 func (c *StructToPStructCopier) init(dst, src reflect.Type) {
 	c.BaseCopier.init(dst, src)
-	dst = dst.Elem()                      // *struct -> struct
-	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
+	dst = dst.Elem()                                // *struct -> struct
+	c.structCopier = checkGet(c.get(dst, src)).copy // Get struct copier for struct -> struct
 	c.size = int(dst.Size())
 }
 
@@ -179,8 +153,8 @@ func NewPStructToStructCopier(c *Copiers) *PStructToStructCopier {
 
 func (c *PStructToStructCopier) init(dst, src reflect.Type) {
 	c.BaseCopier.init(dst, src)
-	src = src.Elem()                      // *struct -> struct
-	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
+	src = src.Elem()                                // *struct -> struct
+	c.structCopier = checkGet(c.get(dst, src)).copy // Get struct copier for struct -> struct
 }
 
 func (c *PStructToStructCopier) Copy(dst, src interface{}) {
@@ -220,9 +194,9 @@ func NewPStructToPStructCopier(c *Copiers) *PStructToPStructCopier {
 
 func (c *PStructToPStructCopier) init(dst, src reflect.Type) {
 	c.BaseCopier.init(dst, src)
-	dst = dst.Elem()                      // *struct -> struct
-	src = src.Elem()                      // *struct -> struct
-	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
+	dst = dst.Elem()                                // *struct -> struct
+	src = src.Elem()                                // *struct -> struct
+	c.structCopier = checkGet(c.get(dst, src)).copy // Get struct copier for struct -> struct
 	c.size = int(dst.Size())
 }
 
