@@ -84,7 +84,6 @@ func (c *StructCopier) fieldCopier(dst, src cache.Field) fieldCopier {
 	// struct -> struct
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
 		copier := c.get(dst.Type, src.Type)
-
 		return func(dstPtr, srcPtr unsafe.Pointer) {
 			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
@@ -92,51 +91,26 @@ func (c *StructCopier) fieldCopier(dst, src cache.Field) fieldCopier {
 
 	// *struct -> struct
 	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct && dst.Type.Kind() == reflect.Struct {
-		copier := c.get(dst.Type, src.Type.Elem())
-
+		copier := c.get(dst.Type, src.Type)
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
-			if *srcFieldPtr == nil {
-				return
-			}
-			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(*srcFieldPtr))
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
 	}
 
 	// struct -> *struct
 	if src.Type.Kind() == reflect.Struct && dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type.Elem(), src.Type)
-
-		dstSize := int(dst.Type.Elem().Size())
-
+		copier := c.get(dst.Type, src.Type)
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
-			if *dstFieldPtr == nil {
-				*dstFieldPtr = (*struct{})(alloc(dstSize))
-			}
-
-			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
 	}
 
 	// *struct -> *struct
 	if src.Type.Kind() == reflect.Ptr && src.Type.Elem().Kind() == reflect.Struct &&
 		dst.Type.Kind() == reflect.Ptr && dst.Type.Elem().Kind() == reflect.Struct {
-		copier := c.get(dst.Type.Elem(), src.Type.Elem())
-
-		dstSize := int(dst.Type.Elem().Size())
-
+		copier := c.get(dst.Type, src.Type)
 		return func(dstPtr, srcPtr unsafe.Pointer) {
-			srcFieldPtr := (**struct{})(unsafe.Pointer(uintptr(srcPtr) + src.Offset))
-			if *srcFieldPtr == nil {
-				return
-			}
-			dstFieldPtr := (**struct{})(unsafe.Pointer(uintptr(dstPtr) + dst.Offset))
-			if *dstFieldPtr == nil {
-				*dstFieldPtr = (*struct{})(alloc(dstSize))
-			}
-
-			copier.copy(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(*srcFieldPtr))
+			copier.copy(unsafe.Pointer(uintptr(dstPtr)+dst.Offset), unsafe.Pointer(uintptr(srcPtr)+src.Offset))
 		}
 	}
 
@@ -156,8 +130,8 @@ type StructToPStructCopier struct {
 
 func NewStructToPStructCopier(c *Copiers, dst, src reflect.Type) *StructToPStructCopier {
 	copier := &StructToPStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
-	dst = dst.Elem() // *SomeStruct -> SomeStruct
-	copier.structCopier = copier.get(dst, src).copy
+	dst = dst.Elem()                                // *struct -> struct
+	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
 	copier.size = int(dst.Size())
 	return copier
 }
@@ -183,4 +157,84 @@ func (c *StructToPStructCopier) copy(dst, src unsafe.Pointer) {
 	}
 
 	c.structCopier(unsafe.Pointer(*dstFieldPtr), src)
+}
+
+type PStructToStructCopier struct {
+	BaseCopier
+
+	structCopier func(dst, src unsafe.Pointer)
+}
+
+func NewPStructToStructCopier(c *Copiers, dst, src reflect.Type) *PStructToStructCopier {
+	copier := &PStructToStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
+	src = src.Elem()                                // *struct -> struct
+	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
+	return copier
+}
+
+func (c *PStructToStructCopier) Copy(dst, src interface{}) {
+	dstType, dstPtr := DataOf(dst)
+	srcType, srcPtr := DataOf(src)
+
+	if c.src.Check(srcType) {
+		panic("source expected type " + c.src.Name + ", but has " + reflect.TypeOf(src).String())
+	}
+	if c.dst.Check(dstType) {
+		panic("destination expected type " + c.dst.Name + ", but has " + reflect.TypeOf(dst).String())
+	}
+
+	c.copy(dstPtr, srcPtr)
+}
+
+func (c *PStructToStructCopier) copy(dst, src unsafe.Pointer) {
+	srcFieldPtr := (**struct{})(src)
+	if *srcFieldPtr == nil {
+		return
+	}
+
+	c.structCopier(dst, unsafe.Pointer(*srcFieldPtr))
+}
+
+type PStructToPStructCopier struct {
+	BaseCopier
+
+	structCopier func(dst, src unsafe.Pointer)
+	size         int
+}
+
+func NewPStructToPStructCopier(c *Copiers, dst, src reflect.Type) *PStructToPStructCopier {
+	copier := &PStructToPStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
+	dst = dst.Elem()                                // *struct -> struct
+	src = src.Elem()                                // *struct -> struct
+	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
+	copier.size = int(dst.Size())
+	return copier
+}
+
+func (c *PStructToPStructCopier) Copy(dst, src interface{}) {
+	dstType, dstPtr := DataOf(dst)
+	srcType, srcPtr := DataOf(src)
+
+	if c.src.Check(srcType) {
+		panic("source expected type " + c.src.Name + ", but has " + reflect.TypeOf(src).String())
+	}
+	if c.dst.Check(dstType) {
+		panic("destination expected type " + c.dst.Name + ", but has " + reflect.TypeOf(dst).String())
+	}
+
+	c.copy(dstPtr, srcPtr)
+}
+
+func (c *PStructToPStructCopier) copy(dst, src unsafe.Pointer) {
+	srcFieldPtr := (**struct{})(src)
+	if *srcFieldPtr == nil {
+		return
+	}
+
+	dstFieldPtr := (**struct{})(dst)
+	if *dstFieldPtr == nil {
+		*dstFieldPtr = (*struct{})(alloc(c.size))
+	}
+
+	c.structCopier(unsafe.Pointer(*dstFieldPtr), unsafe.Pointer(*srcFieldPtr))
 }

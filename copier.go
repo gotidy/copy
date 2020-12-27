@@ -30,3 +30,8 @@ func NewBaseCopier(c *Copiers, dst, src reflect.Type) BaseCopier {
 		src:     NewTypeInfo(src),
 	}
 }
+
+func (b *BaseCopier) init(dst, src reflect.Type) {
+	b.dst = NewTypeInfo(dst)
+	b.src = NewTypeInfo(src)
+}

@@ -41,6 +41,12 @@ func getCopier(c *Copiers, dst, src reflect.Type) Copier {
 	switch {
 	case srcKind == StructValue && dstKind == StructValue:
 		return NewStructCopier(c, dst, src)
+	case srcKind == StructValue && dstKind == StructPtrValue:
+		return NewStructToPStructCopier(c, dst, src)
+	case srcKind == StructPtrValue && dstKind == StructValue:
+		return NewPStructToStructCopier(c, dst, src)
+	case srcKind == StructPtrValue && dstKind == StructPtrValue:
+		return NewPStructToPStructCopier(c, dst, src)
 	}
 	return nil
 }

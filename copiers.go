@@ -49,6 +49,7 @@ func Skip() Option {
 type Copier interface {
 	Copy(dst interface{}, src interface{})
 	copy(dst, src unsafe.Pointer)
+	// init()
 }
 
 // Copiers is a structs copier.
@@ -92,9 +93,7 @@ func (c *Copiers) Copy(dst, src interface{}) {
 }
 
 func (c *Copiers) get(dst, src reflect.Type) Copier {
-	c.mu.RLock()
 	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
-	c.mu.RUnlock()
 	if ok {
 		return copier
 	}
@@ -104,9 +103,7 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 		panic(fmt.Sprintf("the combination of destination(%s) and source(%s) types is not supported", dst, src))
 	}
 
-	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
-	c.mu.Unlock()
 
 	return copier
 }
@@ -119,6 +116,9 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 	if ok {
 		return copier
 	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	srcType := reflect.TypeOf(src)
 	if srcType.Kind() != reflect.Ptr {
@@ -134,9 +134,7 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 
 	copier = c.get(dstType, srcType)
 
-	c.mu.Lock()
 	c.indirectCopiers[indirectCopierKey{Dest: TypeOf(dst), Src: TypeOf(src)}] = copier
-	c.mu.Unlock()
 
 	return copier
 }
