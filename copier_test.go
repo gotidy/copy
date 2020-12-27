@@ -2,6 +2,7 @@ package copy
 
 import (
 	"encoding/json"
+	"sync"
 	"testing"
 )
 
@@ -221,27 +222,31 @@ func TestCopier_Pointer(t *testing.T) {
 
 func TestCopier_Copy_CheckParams(t *testing.T) {
 	v := struct{ i int }{}
+	pV := &v
 	vWrong := struct{}{}
+	pVWrong := &vWrong
 
-	c := New().Get(&v, &v)
+	copy := func(c Copier, dst, src interface{}) {
+		defer func() {
+			if recover() == nil {
+				t.Error("must panic on when parameters types does not match the copier types")
+			}
+		}()
+		c.Copy(dst, src)
+	}
+
+	copiers := New()
+
 	// Check src parameter
-	func() {
-		defer func() {
-			if recover() == nil {
-				t.Error("must panic on when parameters types does not match the copier types")
-			}
-		}()
-		c.Copy(&vWrong, &v)
-	}()
+	copy(copiers.Get(&v, &v), &vWrong, &v)
+	copy(copiers.Get(&pV, &v), &pVWrong, &v)
+	copy(copiers.Get(&v, &pV), &vWrong, &pV)
+	copy(copiers.Get(&pV, &pV), &pVWrong, &pV)
 	// Check dst parameter
-	func() {
-		defer func() {
-			if recover() == nil {
-				t.Error("must panic on when parameters types does not match the copier types")
-			}
-		}()
-		c.Copy(&v, &vWrong)
-	}()
+	copy(copiers.Get(&v, &v), &v, &vWrong)
+	copy(copiers.Get(&pV, &v), &pV, &vWrong)
+	copy(copiers.Get(&v, &pV), &v, &pVWrong)
+	copy(copiers.Get(&pV, &pV), &pV, &pVWrong)
 }
 
 func TestCopier_Skip(t *testing.T) {
@@ -390,4 +395,98 @@ func TestCopier_StructPtr(t *testing.T) {
 		// 	t.Errorf("Expected «%» actual ")
 		// }
 	}
+}
+
+func TestCopier_Cyclic(t *testing.T) {
+	type List1 struct {
+		Value int
+		Next  *List1
+	}
+	type List2 struct {
+		Value int
+		Next  *List2
+	}
+
+	src := List1{
+		Value: 1,
+		Next: &List1{
+			Value: 2,
+			Next: &List1{
+				Value: 3,
+			},
+		},
+	}
+	dst := List2{}
+
+	New().Get(&dst, &src).Copy(&dst, &src)
+	equal(t, dst, src)
+}
+
+func TestCopiers_Parallel(t *testing.T) {
+	type Flags struct {
+		State int
+	}
+
+	type List struct {
+		Flags Flags
+		Value int
+		Next  *List
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 4; i++ {
+		i := i
+		wg.Add(1)
+		go func() {
+			for j := 0; j < 50; j++ {
+				src := List{
+					Flags: Flags{State: i},
+					Value: j * 10,
+					Next: &List{
+						Flags: Flags{State: i},
+						Value: j*10 + 1,
+						Next: &List{
+							Flags: Flags{State: i},
+							Value: j*10 + 2,
+						},
+					},
+				}
+				dst := List{}
+
+				Copy(&dst, &src)
+				equal(t, dst, src)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
+}
+
+func TestCopier_StructCopiers(t *testing.T) {
+	type testStruct1 struct {
+		Value int
+	}
+	type testStruct2 struct {
+		Value int
+	}
+	src := testStruct1{Value: 10}
+	pSrc := &src
+	copiers := New()
+
+	dst := testStruct2{}
+	pDst := &dst
+
+	copiers.Get(&dst, &src).Copy(&dst, &src)
+
+	dst = testStruct2{}
+	copiers.Get(&pDst, &src).Copy(&pDst, &src)
+	equal(t, dst, src)
+
+	dst = testStruct2{}
+	copiers.Get(&dst, &pSrc).Copy(&dst, &pSrc)
+	equal(t, dst, src)
+
+	dst = testStruct2{}
+	copiers.Get(&pDst, &pSrc).Copy(&pDst, &pSrc)
+	equal(t, dst, src)
 }

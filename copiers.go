@@ -48,7 +48,12 @@ func Skip() Option {
 // StructCopier fills a destination from source.
 type Copier interface {
 	Copy(dst interface{}, src interface{})
+}
+
+type internalCopier interface {
+	Copier
 	copy(dst, src unsafe.Pointer)
+	init(dst, src reflect.Type)
 }
 
 // Copiers is a structs copier.
@@ -57,11 +62,11 @@ type Copiers struct {
 	options Options
 
 	mu              sync.RWMutex
-	copiers         map[copierKey]Copier
+	copiers         map[copierKey]internalCopier
 	indirectCopiers map[indirectCopierKey]Copier
 }
 
-// New create new Copier.
+// New create new internalCopier.
 func New(options ...Option) *Copiers {
 	var opts Options
 
@@ -72,7 +77,7 @@ func New(options ...Option) *Copiers {
 	return &Copiers{
 		cache:           cache.New(opts.Tag),
 		options:         opts,
-		copiers:         make(map[copierKey]Copier),
+		copiers:         make(map[copierKey]internalCopier),
 		indirectCopiers: make(map[indirectCopierKey]Copier),
 	}
 }
@@ -91,24 +96,29 @@ func (c *Copiers) Copy(dst, src interface{}) {
 	c.Get(dst, src).Copy(dst, src)
 }
 
-func (c *Copiers) get(dst, src reflect.Type) Copier {
-	c.mu.RLock()
+func checkGet(copier internalCopier, err error) internalCopier {
+	if err != nil {
+		panic(err)
+	}
+	return copier
+}
+
+func (c *Copiers) get(dst, src reflect.Type) (internalCopier, error) {
 	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
-	c.mu.RUnlock()
 	if ok {
-		return copier
+		return copier, nil
 	}
 
 	copier = getCopier(c, dst, src)
 	if copier == nil {
-		panic(fmt.Sprintf("the combination of destination(%s) and source(%s) types is not supported", dst, src))
+		return nil, fmt.Errorf("the combination of destination(%s) and source(%s) types is not supported", dst, src)
 	}
 
-	c.mu.Lock()
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
-	c.mu.Unlock()
 
-	return copier
+	copier.init(dst, src)
+
+	return copier, nil
 }
 
 // Get Copier for a specific destination and source.
@@ -119,6 +129,9 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 	if ok {
 		return copier
 	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	srcType := reflect.TypeOf(src)
 	if srcType.Kind() != reflect.Ptr {
@@ -132,11 +145,9 @@ func (c *Copiers) Get(dst, src interface{}) Copier {
 	}
 	dstType = dstType.Elem()
 
-	copier = c.get(dstType, srcType)
+	copier = checkGet(c.get(dstType, srcType))
 
-	c.mu.Lock()
 	c.indirectCopiers[indirectCopierKey{Dest: TypeOf(dst), Src: TypeOf(src)}] = copier
-	c.mu.Unlock()
 
 	return copier
 }
