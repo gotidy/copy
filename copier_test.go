@@ -2,6 +2,7 @@ package copy
 
 import (
 	"encoding/json"
+	"sync"
 	"testing"
 )
 
@@ -390,4 +391,69 @@ func TestCopier_StructPtr(t *testing.T) {
 		// 	t.Errorf("Expected «%» actual ")
 		// }
 	}
+}
+
+func TestCopier_Cyclic(t *testing.T) {
+	type List1 struct {
+		Value int
+		Next  *List1
+	}
+	type List2 struct {
+		Value int
+		Next  *List2
+	}
+
+	src := List1{
+		Value: 1,
+		Next: &List1{
+			Value: 2,
+			Next: &List1{
+				Value: 3,
+			},
+		},
+	}
+	dst := List2{}
+
+	New().Get(&dst, &src).Copy(&dst, &src)
+	equal(t, dst, src)
+}
+
+func TestCopiers_Parallel(t *testing.T) {
+	type Flags struct {
+		State int
+	}
+
+	type List struct {
+		Flags Flags
+		Value int
+		Next  *List
+	}
+
+	var wg sync.WaitGroup
+	for i := 0; i < 4; i++ {
+		i := i
+		wg.Add(1)
+		go func() {
+			for j := 0; j < 50; j++ {
+				src := List{
+					Flags: Flags{State: i},
+					Value: j * 10,
+					Next: &List{
+						Flags: Flags{State: i},
+						Value: j*10 + 1,
+						Next: &List{
+							Flags: Flags{State: i},
+							Value: j*10 + 2,
+						},
+					},
+				}
+				dst := List{}
+
+				Copy(&dst, &src)
+				equal(t, dst, src)
+			}
+			wg.Done()
+		}()
+	}
+	wg.Wait()
 }
