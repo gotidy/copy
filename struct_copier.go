@@ -19,8 +19,13 @@ type StructCopier struct {
 	copiers []fieldCopier
 }
 
-func NewStructCopier(c *Copiers, dst, src reflect.Type) *StructCopier {
-	copier := &StructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
+func NewStructCopier(c *Copiers) *StructCopier {
+	copier := &StructCopier{BaseCopier: NewBaseCopier(c)}
+	return copier
+}
+
+func (c *StructCopier) init(dst, src reflect.Type) {
+	c.BaseCopier.init(dst, src)
 
 	srcStruct := c.cache.GetByType(src)
 	dstStruct := c.cache.GetByType(dst)
@@ -28,13 +33,11 @@ func NewStructCopier(c *Copiers, dst, src reflect.Type) *StructCopier {
 	for i := 0; i < srcStruct.NumField(); i++ {
 		srcField := srcStruct.Field(i)
 		if dstField, ok := dstStruct.FieldByName(srcField.Name); ok {
-			if f := copier.fieldCopier(dstField, srcField); f != nil {
-				copier.copiers = append(copier.copiers, f)
+			if f := c.fieldCopier(dstField, srcField); f != nil {
+				c.copiers = append(c.copiers, f)
 			}
 		}
 	}
-
-	return copier
 }
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
@@ -128,12 +131,16 @@ type StructToPStructCopier struct {
 	size         int
 }
 
-func NewStructToPStructCopier(c *Copiers, dst, src reflect.Type) *StructToPStructCopier {
-	copier := &StructToPStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
-	dst = dst.Elem()                                // *struct -> struct
-	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
-	copier.size = int(dst.Size())
+func NewStructToPStructCopier(c *Copiers) *StructToPStructCopier {
+	copier := &StructToPStructCopier{BaseCopier: NewBaseCopier(c)}
 	return copier
+}
+
+func (c *StructToPStructCopier) init(dst, src reflect.Type) {
+	c.BaseCopier.init(dst, src)
+	dst = dst.Elem()                      // *struct -> struct
+	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
+	c.size = int(dst.Size())
 }
 
 func (c *StructToPStructCopier) Copy(dst, src interface{}) {
@@ -165,11 +172,15 @@ type PStructToStructCopier struct {
 	structCopier func(dst, src unsafe.Pointer)
 }
 
-func NewPStructToStructCopier(c *Copiers, dst, src reflect.Type) *PStructToStructCopier {
-	copier := &PStructToStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
-	src = src.Elem()                                // *struct -> struct
-	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
+func NewPStructToStructCopier(c *Copiers) *PStructToStructCopier {
+	copier := &PStructToStructCopier{BaseCopier: NewBaseCopier(c)}
 	return copier
+}
+
+func (c *PStructToStructCopier) init(dst, src reflect.Type) {
+	c.BaseCopier.init(dst, src)
+	src = src.Elem()                      // *struct -> struct
+	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
 }
 
 func (c *PStructToStructCopier) Copy(dst, src interface{}) {
@@ -202,13 +213,17 @@ type PStructToPStructCopier struct {
 	size         int
 }
 
-func NewPStructToPStructCopier(c *Copiers, dst, src reflect.Type) *PStructToPStructCopier {
-	copier := &PStructToPStructCopier{BaseCopier: NewBaseCopier(c, dst, src)}
-	dst = dst.Elem()                                // *struct -> struct
-	src = src.Elem()                                // *struct -> struct
-	copier.structCopier = copier.get(dst, src).copy // Get struct copier for struct -> struct
-	copier.size = int(dst.Size())
+func NewPStructToPStructCopier(c *Copiers) *PStructToPStructCopier {
+	copier := &PStructToPStructCopier{BaseCopier: NewBaseCopier(c)}
 	return copier
+}
+
+func (c *PStructToPStructCopier) init(dst, src reflect.Type) {
+	c.BaseCopier.init(dst, src)
+	dst = dst.Elem()                      // *struct -> struct
+	src = src.Elem()                      // *struct -> struct
+	c.structCopier = c.get(dst, src).copy // Get struct copier for struct -> struct
+	c.size = int(dst.Size())
 }
 
 func (c *PStructToPStructCopier) Copy(dst, src interface{}) {

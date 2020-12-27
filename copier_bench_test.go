@@ -62,10 +62,6 @@ func BenchmarkCopier(b *testing.B) {
 	}
 }
 func BenchmarkCopierIf(b *testing.B) {
-	type Copier interface {
-		Copy(dst interface{}, src interface{})
-	}
-
 	c := New()
 	var copier Copier = c.Get(&dst, &src)
 

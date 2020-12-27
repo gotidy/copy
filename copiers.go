@@ -48,8 +48,12 @@ func Skip() Option {
 // StructCopier fills a destination from source.
 type Copier interface {
 	Copy(dst interface{}, src interface{})
+}
+
+type internalCopier interface {
+	Copier
 	copy(dst, src unsafe.Pointer)
-	// init()
+	init(dst, src reflect.Type)
 }
 
 // Copiers is a structs copier.
@@ -58,11 +62,11 @@ type Copiers struct {
 	options Options
 
 	mu              sync.RWMutex
-	copiers         map[copierKey]Copier
+	copiers         map[copierKey]internalCopier
 	indirectCopiers map[indirectCopierKey]Copier
 }
 
-// New create new Copier.
+// New create new internalCopier.
 func New(options ...Option) *Copiers {
 	var opts Options
 
@@ -73,7 +77,7 @@ func New(options ...Option) *Copiers {
 	return &Copiers{
 		cache:           cache.New(opts.Tag),
 		options:         opts,
-		copiers:         make(map[copierKey]Copier),
+		copiers:         make(map[copierKey]internalCopier),
 		indirectCopiers: make(map[indirectCopierKey]Copier),
 	}
 }
@@ -92,7 +96,7 @@ func (c *Copiers) Copy(dst, src interface{}) {
 	c.Get(dst, src).Copy(dst, src)
 }
 
-func (c *Copiers) get(dst, src reflect.Type) Copier {
+func (c *Copiers) get(dst, src reflect.Type) internalCopier {
 	copier, ok := c.copiers[copierKey{Src: src, Dest: dst}]
 	if ok {
 		return copier
@@ -104,6 +108,8 @@ func (c *Copiers) get(dst, src reflect.Type) Copier {
 	}
 
 	c.copiers[copierKey{Src: src, Dest: dst}] = copier
+
+	copier.init(dst, src)
 
 	return copier
 }

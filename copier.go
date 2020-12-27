@@ -23,12 +23,8 @@ type BaseCopier struct {
 	src TypeInfo
 }
 
-func NewBaseCopier(c *Copiers, dst, src reflect.Type) BaseCopier {
-	return BaseCopier{
-		Copiers: c,
-		dst:     NewTypeInfo(dst),
-		src:     NewTypeInfo(src),
-	}
+func NewBaseCopier(c *Copiers) BaseCopier {
+	return BaseCopier{Copiers: c}
 }
 
 func (b *BaseCopier) init(dst, src reflect.Type) {

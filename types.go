@@ -34,19 +34,19 @@ func getValueKind(t reflect.Type) ValueKind {
 	return kind
 }
 
-func getCopier(c *Copiers, dst, src reflect.Type) Copier {
+func getCopier(c *Copiers, dst, src reflect.Type) internalCopier {
 	srcKind := getValueKind(src)
 	dstKind := getValueKind(dst)
 
 	switch {
 	case srcKind == StructValue && dstKind == StructValue:
-		return NewStructCopier(c, dst, src)
+		return NewStructCopier(c)
 	case srcKind == StructValue && dstKind == StructPtrValue:
-		return NewStructToPStructCopier(c, dst, src)
+		return NewStructToPStructCopier(c)
 	case srcKind == StructPtrValue && dstKind == StructValue:
-		return NewPStructToStructCopier(c, dst, src)
+		return NewPStructToStructCopier(c)
 	case srcKind == StructPtrValue && dstKind == StructPtrValue:
-		return NewPStructToPStructCopier(c, dst, src)
+		return NewPStructToPStructCopier(c)
 	}
 	return nil
 }
