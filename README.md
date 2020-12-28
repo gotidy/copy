@@ -71,7 +71,7 @@ copier.Copy(&dst, &src)
 Benchmarks source code can be found [here](https://github.com/gotidy/copy-bench)
 
 ```sh
-go test -bench=. -benchmem ./...
+go test -bench . -benchmem
 goos: darwin
 goarch: amd64
 pkg: github.com/gotidy/copy-bench
