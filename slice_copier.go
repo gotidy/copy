@@ -1,12 +1,17 @@
 package copy
 
 import (
+	"fmt"
 	"reflect"
 	"unsafe"
 )
 
 type SliceCopier struct {
 	BaseCopier
+
+	copier  func(dst, src unsafe.Pointer)
+	dstSize uintptr // Size of the destination element
+	srcSize uintptr // Size of the source element
 }
 
 func NewSliceCopier(c *Copiers) *SliceCopier {
@@ -17,7 +22,12 @@ func NewSliceCopier(c *Copiers) *SliceCopier {
 func (c *SliceCopier) init(dst, src reflect.Type) {
 	c.BaseCopier.init(dst, src)
 
-	// TODO: Init
+	c.copier = c.getCopierFunc(dst.Elem(), src.Elem(), 0, 0)
+	if c.copier == nil && !c.options.Skip {
+		panic(fmt.Errorf(`slice element of type «%s» is not assignable to slice element of type «%s»`, src.String(), dst.String()))
+	}
+	c.dstSize = dst.Elem().Size()
+	c.srcSize = src.Elem().Size()
 }
 
 // Copy copies the contents of src into dst. Dst and src each must be a pointer to struct.
@@ -36,28 +46,13 @@ func (c *SliceCopier) Copy(dst, src interface{}) {
 }
 
 func (c *SliceCopier) copy(dst, src unsafe.Pointer) {
-	// for _, c := range c.copiers {
-	// 	c(dst, src)
-	// }
-}
+	if c.copier == nil {
+		return
+	}
+	srcSlice := sliceAt(src, c.srcSize)
+	dstSlice := makeSliceAt(dst, c.dstSize, srcSlice.Len)
 
-type slice struct {
-	data unsafe.Pointer
-	size int
-	len  int
-}
-
-func sliceAt(ptr unsafe.Pointer, size int) slice {
-	s := (*reflect.SliceHeader)(ptr)
-	return slice{data: unsafe.Pointer(s.Data), size: size, len: s.Len}
-}
-
-// TODO: Init
-func makeSliceAt(ptr unsafe.Pointer, size int, len int) slice {
-	s := (*reflect.SliceHeader)(ptr)
-	return slice{data: unsafe.Pointer(s.Data), size: size, len: s.Len}
-}
-
-func (s slice) Index(i int) unsafe.Pointer {
-	return unsafe.Pointer(uintptr(s.data) + uintptr(s.size*i))
+	for i := 0; i < srcSlice.Len; i++ {
+		c.copier(dstSlice.Index(i), srcSlice.Index(i))
+	}
 }

@@ -490,3 +490,88 @@ func TestCopier_StructCopiers(t *testing.T) {
 	copiers.Get(&pDst, &pSrc).Copy(&pDst, &pSrc)
 	equal(t, dst, src)
 }
+
+func TestCopier_Slice(t *testing.T) {
+	type internal1 struct {
+		I int
+		S string
+	}
+
+	type slice1 []internal1
+
+	type internal2 struct {
+		I int
+		S string
+	}
+
+	type slice2 []internal2
+
+	type testStruct1 struct {
+		S1 slice1
+		S2 *slice1
+		S3 slice1
+		S4 *slice1
+	}
+
+	type testStruct2 struct {
+		S1 slice2
+		S2 slice1
+		S3 *slice1
+		S4 *slice1
+	}
+
+	src := testStruct1{
+		S1: slice1{
+			internal1{I: 10, S: "10"},
+			internal1{I: 9, S: "9"},
+			internal1{I: 8, S: "8"},
+			internal1{I: 7, S: "7"},
+			internal1{I: 6, S: "6"},
+			internal1{I: 5, S: "5"},
+			internal1{I: 4, S: "4"},
+			internal1{I: 3, S: "3"},
+			internal1{I: 2, S: "2"},
+			internal1{I: 1, S: "1"},
+		},
+		S2: &slice1{
+			internal1{I: 10, S: "10"},
+			internal1{I: 9, S: "9"},
+			internal1{I: 8, S: "8"},
+			internal1{I: 7, S: "7"},
+			internal1{I: 6, S: "6"},
+			internal1{I: 5, S: "5"},
+			internal1{I: 4, S: "4"},
+			internal1{I: 3, S: "3"},
+			internal1{I: 2, S: "2"},
+			internal1{I: 1, S: "1"},
+		},
+		S3: slice1{
+			internal1{I: 10, S: "10"},
+			internal1{I: 9, S: "9"},
+			internal1{I: 8, S: "8"},
+			internal1{I: 7, S: "7"},
+			internal1{I: 6, S: "6"},
+			internal1{I: 5, S: "5"},
+			internal1{I: 4, S: "4"},
+			internal1{I: 3, S: "3"},
+			internal1{I: 2, S: "2"},
+			internal1{I: 1, S: "1"},
+		},
+		S4: &slice1{
+			internal1{I: 10, S: "10"},
+			internal1{I: 9, S: "9"},
+			internal1{I: 8, S: "8"},
+			internal1{I: 7, S: "7"},
+			internal1{I: 6, S: "6"},
+			internal1{I: 5, S: "5"},
+			internal1{I: 4, S: "4"},
+			internal1{I: 3, S: "3"},
+			internal1{I: 2, S: "2"},
+			internal1{I: 1, S: "1"},
+		},
+	}
+	dst := testStruct2{}
+
+	New().Get(&dst, &src).Copy(&dst, &src)
+	equal(t, dst, src)
+}
